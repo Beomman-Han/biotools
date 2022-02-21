@@ -18,3 +18,8 @@ Project for supporting various functions relating bioinformatics.
 
 ## Commit Guide
 
+1) commit every modification of the project
+
+2) please write commit message in detail
+
+3) codes must be flawless when the codes are committed
