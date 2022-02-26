@@ -6,7 +6,7 @@ class SanityCheck:
         self._inputfileObject = inputfileObject
         #print(self._inputfileObject)
 
-    def fastaSanityCheck(self) -> None:
+    def fastaSanityCheck(self) -> bool:
         
         """fastaSanityCheck [summary]
 
@@ -45,9 +45,11 @@ class SanityCheck:
                     #print(misbaseList)
                     print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
         if checkbool == False:
-            raise Exception("Check the seq")
+            print("Check the seq")
+            return False
         else:
             print("Seq is normal.")
+            return True
 
     def samSanityCheck(self) -> bool:
         print("파일 포맷은 sam입니다.")
