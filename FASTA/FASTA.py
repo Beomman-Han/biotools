@@ -77,4 +77,3 @@ if __name__ == "__main__":
     
     #record_dict = RGS14_cDNA.to_dict(open(fasta_fn))
     #print(list(record_dict.keys())[0])
-    
