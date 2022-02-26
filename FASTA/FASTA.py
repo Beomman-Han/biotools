@@ -4,6 +4,8 @@ import typing
 from SeqRecord import SeqRecord
 from Seq import Seq
 
+print("우과장님 바보 ")
+
 def SimpleFastaParser(handle: typing.TextIO) -> tuple:
     sequences = []
     for line in handle:
@@ -75,4 +77,3 @@ if __name__ == "__main__":
     
     #record_dict = RGS14_cDNA.to_dict(open(fasta_fn))
     #print(list(record_dict.keys())[0])
-    
