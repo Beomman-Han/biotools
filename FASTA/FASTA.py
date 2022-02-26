@@ -1,12 +1,9 @@
-
-import typing
+from typing import Dict, Iterator, TextIO, Tuple, Type
 
 from SeqRecord import SeqRecord
 from Seq import Seq
 
-print("우과장님 바보 ")
-
-def SimpleFastaParser(handle: typing.TextIO) -> tuple:
+def SimpleFastaParser(handle : TextIO) -> Tuple[str]:
     sequences = []
     for line in handle:
         if line.startswith('>'):
@@ -21,7 +18,7 @@ def SimpleFastaParser(handle: typing.TextIO) -> tuple:
             sequences.append(line.strip())
     yield title, desc, ''.join(sequences)
 
-def iterate(handle: "SeqRecord") -> "SeqRecord":
+def iterate(handle : Type["SeqRecord"]) -> Type["SeqRecord"]:
     """_summary_
 
     Parameters
@@ -43,11 +40,11 @@ def iterate(handle: "SeqRecord") -> "SeqRecord":
     for title, description, seq in SimpleFastaParser(handle):
         yield SeqRecord(seq=Seq(seq), title=title, description=description)
 
-def parse(handle: typing.TextIO) -> tuple:
+def parse(handle : TextIO) -> Iterator[str]:
     record = iterate(handle)
     return record
 
-def to_dict(handle: typing.TextIO) -> dict:
+def to_dict(handle : TextIO) -> Dict[str, Iterator[str]]:
     record_dict = {}
     for record in parse(handle):
         data_id = record.title
