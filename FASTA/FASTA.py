@@ -3,7 +3,7 @@ from typing import Dict, Iterator, TextIO, Tuple, Type
 from SeqRecord import SeqRecord
 from Seq import Seq
 
-def SimpleFastaParser(handle : TextIO) -> Tuple[str]:
+def simple_fasta_parser(handle : TextIO) -> Tuple[str]:
     sequences = []
     for line in handle:
         if line.startswith('>'):
@@ -37,7 +37,7 @@ def iterate(handle : Type["SeqRecord"]) -> Type["SeqRecord"]:
         _description_
     """
     
-    for title, description, seq in SimpleFastaParser(handle):
+    for title, description, seq in simple_fasta_parser(handle):
         yield SeqRecord(seq=Seq(seq), title=title, description=description)
 
 def parse(handle : TextIO) -> Iterator[str]:
