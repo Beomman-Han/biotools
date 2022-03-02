@@ -22,18 +22,40 @@ class FASTAProcessor(FileProcessor):
         """
         
         self.path = path
+        self.open_obj = False
         #sanity_check = sanityCheck.SanityCheck(self.path)
         #sanity_check.fastaSanityCheck()
         
         return
     
-    def open(self, mode: str) -> io.BufferedReader or io.BufferedWriter:
-        """Open File"""
+    def open(self, file_name, mode: str = "r") -> None:
+        """_summary_
+
+        Parameters
+        ----------
+        file_name : str
+            The name of the file to open.
+        mode : str
+            open mode (r, w, ...)
+        """
+        if self.open_obj:
+            print('Current Open Obj is already open')
+        else:
+            self.open_mode = mode
+            self.open_obj = open(file_name, mode)
+        
         pass
     
-    def close(self) -> None:
-        """Close File"""
-        pass
+    def close(self: io.BufferedReader or io.BufferedWriter) -> None:
+        """_summary_
+
+        Parameters
+        ----------
+        opened_file : io.BufferedReaderorio.BufferedWriter
+            _description_
+        """
+        self.open_obj.close()
+        self.open_obj = False
     
     def readline(self, skip_header: bool) -> str:
         """Read file by line
@@ -49,7 +71,7 @@ class FASTAProcessor(FileProcessor):
         """
         pass
     
-    def write(self, line: str) -> None:
+    def write(self, title: str, sequence: str, desc : str = None) -> None:
         """Write file by line
 
         Parameters
@@ -57,6 +79,16 @@ class FASTAProcessor(FileProcessor):
         line: str
             A line for writing file
         """
+        
+        if 'r' in self.open_mode:
+            print('Current Open Obj is "Read" mode')
+        
+        elif 'w' in self.open_mode:
+            fasta_title = f'>{title}'
+            if desc: fasta_title += f' {desc}'
+            self.open_obj.write(f'{fasta_title}\n')
+            for i in range(0, len(sequence), 70):
+                self.open_obj.write(sequence[i:i+70]+'\n')
         pass
     
     def simple_fasta_parser(self, handle : TextIO) -> Generator[Tuple[str], None, None]:
@@ -148,6 +180,11 @@ class FASTAProcessor(FileProcessor):
             else:
                 record_dict[data_id] = record
         return record_dict
+    
+    def __del__(self):
+        if self.open_obj:
+            print('close File')
+            self.close()
 
 if __name__ == "__main__":
     
@@ -155,6 +192,17 @@ if __name__ == "__main__":
     obj_fasta = FASTAProcessor(fasta_fn)
     
     fasta_dic = obj_fasta.to_dict(open(fasta_fn))
+    
+    first_id = list(fasta_dic.keys())[0]
+    first_fasta = fasta_dic[first_id]
+    print(repr(first_fasta.seq))
+    print(type(first_fasta.seq))
+    
+    obj_fasta.open("first_fasta",mode='w')
+    obj_fasta.write(first_id, str(first_fasta.seq))
+    
+    #del obj_fasta
+    #obj_fasta.close()
     
     # seq Iterator
     #RGS14_cDNA = Fasta()
