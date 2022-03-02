@@ -1,10 +1,15 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from typing import Dict, TextIO, Tuple, Type, Generator
+import io
 
 from SeqRecord import SeqRecord
 from Seq import Seq
-# from FileProcessor import FileProcessor
+from FileProcessor import FileProcessor
+#from GunHyeong import sanityCheck
 
-class FASTAProcessor(object):
+class FASTAProcessor(FileProcessor):
     """Class supports functions that process FASTA format file"""
     
     def __init__(self, path : str) -> None:
@@ -17,9 +22,43 @@ class FASTAProcessor(object):
         """
         
         self.path = path
+        #sanity_check = sanityCheck.SanityCheck(self.path)
+        #sanity_check.fastaSanityCheck()
         
         return
-        
+    
+    def open(self, mode: str) -> io.BufferedReader or io.BufferedWriter:
+        """Open File"""
+        pass
+    
+    def close(self) -> None:
+        """Close File"""
+        pass
+    
+    def readline(self, skip_header: bool) -> str:
+        """Read file by line
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+        > line from a line
+        """
+        pass
+    
+    def write(self, line: str) -> None:
+        """Write file by line
+
+        Parameters
+        ----------
+        line: str
+            A line for writing file
+        """
+        pass
+    
     def simple_fasta_parser(self, handle : TextIO) -> Generator[Tuple[str], None, None]:
         """Generator function parsing fasta format contents
 
@@ -112,7 +151,10 @@ class FASTAProcessor(object):
 
 if __name__ == "__main__":
     
-    fasta_fn = 'RGS14_cDNA.fasta'
+    fasta_fn = 'FASTA/RGS14_cDNA.fasta'
+    obj_fasta = FASTAProcessor(fasta_fn)
+    
+    fasta_dic = obj_fasta.to_dict(open(fasta_fn))
     
     # seq Iterator
     #RGS14_cDNA = Fasta()

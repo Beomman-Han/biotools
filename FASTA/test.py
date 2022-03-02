@@ -1,6 +1,9 @@
 import FASTA
 
-fasta_dict = FASTA.to_dict(open('RGS14_cDNA.fasta'))
+fasta_file = 'FASTA/RGS14_cDNA.fasta'
+
+obj_fasta = FASTA.FASTAProcessor(fasta_file)
+fasta_dict = obj_fasta.to_dict(open(fasta_file))
 print(list(fasta_dict.keys()))
 
 for seq_name in fasta_dict:
@@ -22,4 +25,3 @@ for seq_name in fasta_dict:
     #print(type(seq.to_string()))
     #print(rc_seq, len(rc_seq))
     break
-    
