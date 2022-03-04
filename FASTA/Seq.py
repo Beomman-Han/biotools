@@ -107,16 +107,20 @@ class Seq:
             Seq object which contains complementary sequence
         """
         
+        IUPAC_PAIR = {"R": "Y", "Y": "R", "M": "K", "K": "M", "W": "W",
+                    "S": "S", "B": "V", "V": "B", "D": "H", "H": "D"}
         if self.type == 'DNA':
-            watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
-            for base in watson_crick.keys():
-                watson_crick[base.lower()] = watson_crick[base].lower()
-            return Seq(self.type, "".join([watson_crick[base] for base in self.data]))
+            # watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
+            DNA_PAIR = {**{"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
+            for base in DNA_PAIR.keys():
+                DNA_PAIR[base.lower()] = DNA_PAIR[base].lower()
+            return Seq(self.type, "".join([DNA_PAIR[base] for base in self.data]))
         elif self.type == 'RNA':
-            watson_crick = {"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}
-            for base in watson_crick.keys():
-                watson_crick[base.lower()] = watson_crick[base].lower()
-            return Seq(self.type, "".join([watson_crick[base] for base in self.data]))
+            # watson_crick = {"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}
+            RNA_PAIR = {**{"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
+            for base in RNA_PAIR.keys():
+                RNA_PAIR[base.lower()] = RNA_PAIR[base].lower()
+            return Seq(self.type, "".join([RNA_PAIR[base] for base in self.data]))
         else:
             print('[WARNING] Only DNA or RNA sequence can get complement seq.')
             ## return replicate Seq object
