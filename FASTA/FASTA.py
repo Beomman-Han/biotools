@@ -4,10 +4,32 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from typing import Dict, TextIO, Tuple, Type, Generator
 import io
 
-from SeqRecord import SeqRecord
 from Seq import Seq
 from FileProcessor import FileProcessor
 #from GunHyeong import sanityCheck
+
+class SeqRecord:
+    def __init__(
+        self,
+        seq,
+        title: str,
+        description: str,
+    ):
+        """_summary_
+
+        Parameters
+        ----------
+        seq : str
+            _description_
+        title : str
+            _description_
+        description : str
+            _description_
+        """
+        
+        self.seq = seq
+        self.title = title
+        self.description = description
 
 class FASTAProcessor(FileProcessor):
     """Class supports functions that process FASTA format file"""
@@ -219,7 +241,6 @@ class FASTAProcessor(FileProcessor):
             print("Seq is normal.")
             return True
 
-
     
 if __name__ == "__main__":
     
@@ -235,9 +256,12 @@ if __name__ == "__main__":
     
     obj_fasta.open("first_fasta",mode='w')
     obj_fasta.write(first_id, str(first_fasta.seq))
-    
-    #del obj_fasta
-    #obj_fasta.close()
+    obj_fasta.close()
+
+    obj_fasta.open("second_fasta",mode='w')
+    obj_fasta.write(first_id, str(first_fasta.seq))
+    # 1) obj_fasta.close()
+    # 2) del obj_fasta
     
     # seq Iterator
     #RGS14_cDNA = Fasta()
