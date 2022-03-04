@@ -156,7 +156,21 @@ class Seq:
             rev_com = self.data[::-1]
         return Seq(self.type, rev_com)
     
-    def count(self, char : str) -> int:
+    def _warn_iupac(self) -> None:
+        """Warn if self.data has more than 'ACGT(U)' base,
+        it contains undecided IUPAC codes."""
+        
+        if self.type == 'DNA':
+            if set(self.data) != {'A', 'C', 'G', 'T'}:
+                # print('[WARNING] Sequence has more than A/C/G/T bases.')
+                print('[WARNING] Sequence has undecided IUPAC codes.')
+        elif self.type == 'RNA':
+            if set(self.data) != {'A', 'C', 'G', 'U'}:
+                # print('[WARNING] Sequence has more than A/C/G/U bases.')
+                print('[WARNING] Sequence has undecided IUPAC codes.')
+        return
+    
+    def count(self, char : str, verbose=True) -> int:
         """Count input char from self.data sequence.
         In case of DNA/RNA, it is recommended that 
         self.data have only 'ACGT(U)' not IUPAC character.
@@ -165,6 +179,8 @@ class Seq:
         ----------
         char : str
             Base or amino acid for counting
+        verbose : bool, optional
+            True, print warning message, by default True
 
         Returns
         -------
@@ -172,20 +188,18 @@ class Seq:
             Count number
         """
         
-        if self.type == 'DNA':
-            if set(self.data) != {'A', 'C', 'G', 'T'}:
-                print('[WARNING] Sequence has more than A/C/G/T bases.')
-                print('[WARNING] Counting is incorrect possibly.')
-        elif self.type == 'RNA':
-            if set(self.data) != {'A', 'C', 'G', 'U'}:
-                print('[WARNING] Sequence has more than A/C/G/U bases.')
-                print('[WARNING] Counting is incorrect possibly.')
-        
+        if verbose:
+            self._warn_iupac()
         return self.data.upper().count(char.upper())
         
-    def cal_gc_ratio(self) -> float or None:
+    def cal_gc_ratio(self, verbose=True) -> float or None:
         """Calculate GC ratio of self.data (only for DNA/RNA).
         GC ratio = ( count of G + count of C ) / length of seq
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            True, print warning message, by default True
 
         Returns
         -------
@@ -196,13 +210,15 @@ class Seq:
         if self.type == 'Protein':
             return None
         
-        gc_count = self.count('G') + self.count('C')
+        gc_count = self.count('G', verbose=False) + self.count('C', verbose=False)
+        if verbose:
+            self._warn_iupac()
         return gc_count / len(self.data)
 
 
 if __name__ == "__main__":
     
-    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
+    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGCR'
     print(test_seq)
     
     temp = Seq('DNA', test_seq)
