@@ -4,20 +4,22 @@ REVC = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
 for base in list(REVC.keys()): REVC[base.lower()] = REVC[base].lower()
 
 class Seq:
-    def __init__(self, data: str) -> str:
-        """_summary_
+    def __init__(self,
+        type : str,
+        data : str
+        ) -> None:
+        
+        """Initializae Seq class with type, sequence.
 
         Parameters
         ----------
+        type : str
+            Type of sequence ('DNA' or 'RNA' or 'Protein')
         data : str
-            _description_
-
-        Returns
-        -------
-        str
-            _description_
+            Sequence string
         """
         
+        self.type = type
         self.data = data
         
     def __repr__(self):
