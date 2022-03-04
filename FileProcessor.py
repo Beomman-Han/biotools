@@ -11,6 +11,11 @@ class FileProcessor(ABC):
     """
 
     @abstractmethod
+    def sanity_check(self) -> bool:
+        """Open file"""
+        pass
+    
+    @abstractmethod
     def open(self, mode: str) -> io.BufferedReader or io.BufferedWriter:
         """Open file"""
         pass
