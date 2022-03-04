@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Dict, Type
 
 class Seq:
     def __init__(self,
@@ -215,10 +215,60 @@ class Seq:
             self._warn_iupac()
         return gc_count / len(self.data)
 
+    def _add_lower_case(self,
+        dict : Dict[str, str]
+        ) -> None:
+        """Add lower case of keys at input dictionary.
+        
+        Example
+        -------
+        >>> dict
+        {'A': 'T'}
+        >>> self._add_lower_case(dict)
+        >>> dict
+        {'A': 'T', 'a': 't'}
+        
+        Parameters
+        ----------
+        dict : Dict[str, str]
+            input dict like DNA_PAIR, RNA_PAIR, DNA_RNA_PAIR, etc.
+        """
+        
+        for key in list(dict.keys()):
+            dict[key.lower()] = dict[key].lower()
 
+        return
+        
+    def transcribe(self, verbose=True) -> Type['Seq'] or None:
+        """Transcribe DNA sequence to RNA sequence.
+        
+        Parameters
+        ----------
+        verbose : bool, optional
+            Print warning message, by default True
+        
+        Returns
+        -------
+        Seq or None
+            Seq object containing trancript or None
+        """
+        
+        if self.type != 'DNA':
+            if verbose:
+                print('[WARNING] Transcription is only for DNA')
+            return None
+        if verbose:
+            self._warn_iupac()
+        IUPAC_PAIR = {"R": "Y", "Y": "R", "M": "K", "K": "M", "W": "W",
+                    "S": "S", "B": "V", "V": "B", "D": "H", "H": "D"}
+        DNA_RNA_PAIR = {**{'A': 'U', 'C': 'G', 'G': 'C', 'T': 'A'}, **IUPAC_PAIR}
+        self._add_lower_case(DNA_RNA_PAIR)
+        
+        return Seq('RNA', ''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1])
+    
 if __name__ == "__main__":
     
-    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGCR'
+    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
     print(test_seq)
     
     temp = Seq('DNA', test_seq)
@@ -228,3 +278,4 @@ if __name__ == "__main__":
     print(temp.reverse_complement())
     print(temp.count('a'))
     print(temp.cal_gc_ratio())
+    print(temp.transcribe())
