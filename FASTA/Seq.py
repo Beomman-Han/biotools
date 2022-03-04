@@ -17,7 +17,7 @@ class Seq:
         """
         
         self.type = type
-        self.data = data
+        self.data = data    
     
     def check(self) -> bool:
         """Check whether initialization is normal.
@@ -155,7 +155,33 @@ class Seq:
         else:
             rev_com = self.data[::-1]
         return Seq(self.type, rev_com)
+    
+    def count(self, char : str) -> int:
+        """Count input char from self.data sequence.
+        In case of DNA/RNA, it is recommended that 
+        self.data have only 'ACGT(U)' not IUPAC character.
 
+        Parameters
+        ----------
+        char : str
+            Base or amino acid for counting
+
+        Returns
+        -------
+        int
+            Count number
+        """
+        
+        if self.type == 'DNA':
+            if set(self.data) != {'A', 'C', 'G', 'T'}:
+                print('[WARNING] Sequence has more than A/C/G/T bases.')
+                print('[WARNING] Counting is incorrect possibly.')
+        elif self.type == 'RNA':
+            if set(self.data) != {'A', 'C', 'G', 'U'}:
+                print('[WARNING] Sequence has more than A/C/G/U bases.')
+                print('[WARNING] Counting is incorrect possibly.')
+        
+        return self.data.upper().count(char.upper())
 
 if __name__ == "__main__":
     
