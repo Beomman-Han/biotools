@@ -18,6 +18,60 @@ class Seq:
         
         self.type = type
         self.data = data
+    
+    def check(self) -> bool:
+        """Check whether initialization is normal.
+
+        Returns
+        -------
+        bool
+            Is it normal content
+        """
+        ## IUPAC info was referred from http://www.incodom.kr/IUPAC
+        BASE_IUPAC = {
+            'A', 'C', 'G', 'T',
+            'U', 'R', 'Y', 'M',
+            'K', 'W', 'S', 'B',
+            'D', 'H', 'V', 'N'
+        }
+        AMINO_ACID_IUPAC = {
+            'A', 'R', 'N', 'D',
+            'C', 'Q', 'E', 'G',
+            'H', 'I', 'L', 'K',
+            'M', 'F', 'P', 'S',
+            'T', 'W', 'Y', 'V',
+            'B', 'Z', 'X'
+        }
+        if self.type == 'DNA':
+            DNA_IUPAC = BASE_IUPAC - {'U'}
+            bases = list(set(self.data))
+            for base in bases:
+                if base not in DNA_IUPAC:
+                    print('[WARNING] Sequence has weird character.')
+                    print('[WARNING] Please check whether it is DNA sequence.')
+                    print('[WARNING] It could raise errors at methods.')
+                    return False
+        elif self.type == 'RNA':
+            RNA_IUPAC = BASE_IUPAC - {'T'}
+            bases = list(set(self.data))
+            for base in bases:
+                if base not in RNA_IUPAC:
+                    print('[WARNING] Sequence has weird character.')
+                    print('[WARNING] Please check whether it is RNA sequence.')
+                    print('[WARNING] It could raise errors at methods.')
+                    return False
+        elif self.type == 'Protein':
+            amino_acids = list(set(self.data))
+            for amino in amino_acids:
+                if amino not in AMINO_ACID_IUPAC:
+                    print('[WARNING] Sequence has weird character.')
+                    print('[WARNING] Please check whether it is Protein sequence.')
+                    print('[WARNING] It could raise errors at methods.')
+                    return False
+        else:
+            print('[WARNING] It only supports DNA/RNA/Protein sequences.')
+            return False
+        return True
         
     def __repr__(self) -> str:
         """Represent Seq object by
