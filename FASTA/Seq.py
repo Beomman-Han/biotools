@@ -79,8 +79,24 @@ class Seq:
 
         return Seq(self.type, self.data[::-1])
 
-    def reverse_complemnt(self):
-        return Seq("".join([REVC[base] for base in self.data[::-1]]))
+    def get_data(self) -> str:
+        return self.data
+
+    def reverse_complement(self) -> Type['Seq']:
+        """Make reverse complement sequence of self.data.
+        If Seq type is not DNA or RNA, it returns reverse sequence.
+
+        Returns
+        -------
+        Seq
+            Seq object which contains reverse complement sequence
+        """
+        
+        if self.type in ('DNA', 'RNA'):
+            rev_com = self.complement().get_data()[::-1]
+        else:
+            rev_com = self.data[::-1]
+        return Seq(self.type, rev_com)
 
 
 if __name__ == "__main__":
