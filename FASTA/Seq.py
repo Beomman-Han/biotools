@@ -57,19 +57,27 @@ class Seq:
             watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
             for base in watson_crick.keys():
                 watson_crick[base.lower()] = watson_crick[base].lower()
-            return Seq(self.type, "".join(watson_crick[base] for base in self.data))
+            return Seq(self.type, "".join([watson_crick[base] for base in self.data]))
         elif self.type == 'RNA':
             watson_crick = {"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}
             for base in watson_crick.keys():
                 watson_crick[base.lower()] = watson_crick[base].lower()
-            return Seq(self.type, "".join(watson_crick[base] for base in self.data))
+            return Seq(self.type, "".join([watson_crick[base] for base in self.data]))
         else:
             print('[WARNING] Only DNA or RNA sequence can get complement seq.')
             ## return replicate Seq object
             return Seq(self.type, self.data)
 
-    def reverse(self):
-        return Seq("".join([base for base in self.data[::-1]]))
+    def reverse(self) -> Type['Seq']:
+        """Make reverse sequence of self.data.
+
+        Returns
+        -------
+        Seq
+            Seq object which contains reverse sequence
+        """
+
+        return Seq(self.type, self.data[::-1])
 
     def reverse_complemnt(self):
         return Seq("".join([REVC[base] for base in self.data[::-1]]))
