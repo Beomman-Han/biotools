@@ -182,6 +182,23 @@ class Seq:
                 print('[WARNING] Counting is incorrect possibly.')
         
         return self.data.upper().count(char.upper())
+        
+    def cal_gc_ratio(self) -> float or None:
+        """Calculate GC ratio of self.data (only for DNA/RNA).
+        GC ratio = ( count of G + count of C ) / length of seq
+
+        Returns
+        -------
+        float or None
+            GC ration or None for protein
+        """
+        
+        if self.type == 'Protein':
+            return None
+        
+        gc_count = self.count('G') + self.count('C')
+        return gc_count / len(self.data)
+
 
 if __name__ == "__main__":
     
@@ -193,3 +210,5 @@ if __name__ == "__main__":
     print(temp.complement())
     print(temp.reverse())
     print(temp.reverse_complement())
+    print(temp.count('a'))
+    print(temp.cal_gc_ratio())
