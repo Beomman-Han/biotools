@@ -22,12 +22,22 @@ class Seq:
         self.type = type
         self.data = data
         
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Represent Seq object by
+        printing it's summary sequence data.
+
+        Returns
+        -------
+        str
+            Summary sequence data
+        """
+        
         if len(self.data) < 60:
             return f"Seq({self.data})"
         else:
-            start = self.data[:3]
-            end = self.data[-3:]
+            ## it would be better printing 60 char
+            start = self.data[:30]
+            end = self.data[-30:]
             return f"Seq({start}...{end})"       
 
     def __len__(self):
