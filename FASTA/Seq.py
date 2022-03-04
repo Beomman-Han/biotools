@@ -1,7 +1,4 @@
-import typing
-
-REVC = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
-for base in list(REVC.keys()): REVC[base.lower()] = REVC[base].lower()
+from typing import Type
 
 class Seq:
     def __init__(self,
@@ -46,8 +43,30 @@ class Seq:
     def __str__(self):
         return str(self.data)
 
-    def complement(self):
-        return Seq("".join([REVC[base] for base in self.data]))
+    def complement(self) -> Type['Seq']:
+        """Make complementary sequence of self.data.
+        If Seq type is not DNA or RNA, it returns replicate object.
+
+        Returns
+        -------
+        Seq
+            Seq object which contains complementary sequence
+        """
+        
+        if self.type == 'DNA':
+            watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
+            for base in watson_crick.keys():
+                watson_crick[base.lower()] = watson_crick[base].lower()
+            return Seq(self.type, "".join(watson_crick[base] for base in self.data))
+        elif self.type == 'RNA':
+            watson_crick = {"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}
+            for base in watson_crick.keys():
+                watson_crick[base.lower()] = watson_crick[base].lower()
+            return Seq(self.type, "".join(watson_crick[base] for base in self.data))
+        else:
+            print('[WARNING] Only DNA or RNA sequence can get complement seq.')
+            ## return replicate Seq object
+            return Seq(self.type, self.data)
 
     def reverse(self):
         return Seq("".join([base for base in self.data[::-1]]))
