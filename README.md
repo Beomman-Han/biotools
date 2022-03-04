@@ -15,6 +15,7 @@ Project for supporting various functions relating bioinformatics.
 
 4) CONSTANT_NAME : SNAKE_CASE_WITH_UPPER_CASE
 
+5) Recommend using plural format (ex. sequences <- list of sequence)
 
 ## Commit Guide
 
