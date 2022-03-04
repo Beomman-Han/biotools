@@ -44,7 +44,7 @@ class Seq:
         }
         if self.type == 'DNA':
             DNA_IUPAC = BASE_IUPAC - {'U'}
-            bases = list(set(self.data))
+            bases = list(set(self.data.upper()))
             for base in bases:
                 if base not in DNA_IUPAC:
                     print('[WARNING] Sequence has weird character.')
@@ -53,7 +53,7 @@ class Seq:
                     return False
         elif self.type == 'RNA':
             RNA_IUPAC = BASE_IUPAC - {'T'}
-            bases = list(set(self.data))
+            bases = list(set(self.data.upper()))
             for base in bases:
                 if base not in RNA_IUPAC:
                     print('[WARNING] Sequence has weird character.')
@@ -61,7 +61,7 @@ class Seq:
                     print('[WARNING] It could raise errors at methods.')
                     return False
         elif self.type == 'Protein':
-            amino_acids = list(set(self.data))
+            amino_acids = list(set(self.data.upper()))
             for amino in amino_acids:
                 if amino not in AMINO_ACID_IUPAC:
                     print('[WARNING] Sequence has weird character.')
@@ -112,13 +112,13 @@ class Seq:
         if self.type == 'DNA':
             # watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
             DNA_PAIR = {**{"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
-            for base in DNA_PAIR.keys():
+            for base in list(DNA_PAIR.keys()):
                 DNA_PAIR[base.lower()] = DNA_PAIR[base].lower()
             return Seq(self.type, "".join([DNA_PAIR[base] for base in self.data]))
         elif self.type == 'RNA':
             # watson_crick = {"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}
             RNA_PAIR = {**{"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
-            for base in RNA_PAIR.keys():
+            for base in list(RNA_PAIR.keys()):
                 RNA_PAIR[base.lower()] = RNA_PAIR[base].lower()
             return Seq(self.type, "".join([RNA_PAIR[base] for base in self.data]))
         else:
@@ -162,5 +162,8 @@ if __name__ == "__main__":
     test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
     print(test_seq)
     
-    temp = Seq(test_seq)
-    print(temp.reverse_complemnt())
+    temp = Seq('DNA', test_seq)
+    print(temp.check())
+    print(temp.complement())
+    print(temp.reverse())
+    print(temp.reverse_complement())
