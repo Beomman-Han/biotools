@@ -208,38 +208,45 @@ class FASTAProcessor(FileProcessor):
             print('close File')
             self.close()
 
-    def sanity_check(self) -> bool:
+    def sanity_check(self,target_seq :tuple ,mode : str ) -> bool:
+        """sanity_check [summary]
+
+        Parameters
+        ----------
+        mode : str
+            [description]
+            r,e
+            r = respectively
+            e = entire
+        Returns
+        -------
+        bool
+            [description]
+
+        Raises
+        ------
+        Exception
+            [description]
+        """
 
         fastaElement : list= ['A','T','G','C','N','R','Y','S','W','K','M','B','D','H','V']
-
-        print(f'file format is fasta. \nStart the sanity check for {self.path}')
-        fr :IO = self.open_obj
-        for line, value in enumerate(fr, start=1):
-            if line % 2 == 1:
-                if value[0] == ">":
-                    pass
-                    print(f'Header : {value}',end='')
-                else:
-                    #raise Exception(f'헤더를 확인하세요 -> Header : {value[0]}')
-                    print(f'Check header -> Header : {value[0]}')
-                    return False
+        #target_seq = next(fasta_seq)
+        print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
+    
+        if mode == "r":
+            checkbase = [base in fastaElement for base in target_seq[2].strip()]
+            checkbool :bool = all(checkbase)
+            true_list =list((filter(lambda x: x, checkbase)))
+            if checkbool == False:
+                misbaseList = [ (target_seq[2][i],i+1) for i, b in enumerate(checkbase) if b == False]
+                #print(misbaseList)
+                print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
+            if checkbool == False:
+                print("Check the seq")
+                return False
             else:
-                
-                checkbase = [base in fastaElement for base in value.strip()]
-                checkbool :bool = all(checkbase)
-                #print(checkbool)
-                #print(checkbase)
-                a =list((filter(lambda x: x, checkbase)))
-                if checkbool == False:
-                    misbaseList = [ (value[i],i+1) for i, b in enumerate(checkbase) if b == False]
-                    #print(misbaseList)
-                    print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
-        if checkbool == False:
-            print("Check the seq")
-            return False
-        else:
-            print("Seq is normal.")
-            return True
+                print("Seq is normal.")
+                return True
 
     
 if __name__ == "__main__":
