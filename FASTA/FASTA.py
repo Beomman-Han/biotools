@@ -6,6 +6,8 @@ import io
 
 from Seq import Seq
 from FileProcessor import FileProcessor
+
+import re
 #from GunHyeong import sanityCheck
 
 class SeqRecord:
@@ -247,6 +249,15 @@ class FASTAProcessor(FileProcessor):
             else:
                 print("Seq is normal.")
                 return True
+
+    def find_seq(self,seq:str) -> None:
+        fasta_obj = open(self.path,"r")
+        p = re.compile(seq)
+        for fasta in self.simple_fasta_parser(fasta_obj):
+            matched_iter = p.finditer((fasta[2]))
+            for target in matched_iter:
+                print(f'find seq in {fasta[0]} ==> start : {target.start()+1}, end : {target.end()+1}')
+
 
     
 if __name__ == "__main__":
