@@ -153,6 +153,24 @@ class Seq:
         else:
             rev_com = self.data[::-1]
         return Seq(self.type, rev_com)
+
+    def _has_iupac(self) -> bool:
+        """Does self.data have IUPAC character 
+        not 'ACGT(U)' base.
+
+        Returns
+        -------
+        bool
+            True if self.data has more than 'ACGT'
+        """
+        
+        if self.type == 'DNA':
+            if len(set(self.data) - {'A', 'C', 'G', 'T'}) != 0:
+                return True
+        elif self.type == 'RNA':
+            if len(set(self.data) - {'A', 'C', 'G', 'U'}) != 0:
+                return True
+        return False
     
     def _warn_iupac(self) -> None:
         """Warn if self.data has more than 'ACGT(U)' base,
@@ -342,13 +360,14 @@ if __name__ == "__main__":
     print(test_seq)
     
     temp = Seq('DNA', test_seq)
-    print(temp.check())
-    print(temp.complement())
-    print(temp.reverse())
-    print(temp.reverse_complement())
-    print(temp.count('a'))
-    print(temp.cal_gc_ratio())
-    print(temp.transcribe())
+    # print(temp.check())
+    # print(temp.complement())
+    # print(temp.reverse())
+    # print(temp.reverse_complement())
+    # print(temp.count('a'))
+    # print(temp.cal_gc_ratio())
+    # print(temp.transcribe())
+    print(temp._has_iupac())
     
     test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
     temp = Seq('RNA', test_seq)
