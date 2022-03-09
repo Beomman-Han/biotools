@@ -264,6 +264,78 @@ class Seq:
         
         return Seq('RNA', ''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1])
     
+    def translate(self, verbose=True) -> Type['Seq'] or None:
+        """Translate RNA sequence to protein sequence.
+        
+        Parameters
+        ----------
+        verbose : bool, optional
+            Print warning message, by default True
+
+        Returns
+        -------
+        Seq or None
+            Seq object containing protein or None
+        """
+        
+        if self.type != 'RNA':
+            if verbose:
+                print('[WARNING] Translation is only for RNA')
+            return None
+        if verbose:
+            self._warn_iupac()
+        
+        CODON_TABLE = {
+            "UUU": "F", "UUC": "F", "UUA": "L", "UUG": "L",
+            "UCU": "S", "UCC": "S", "UCA": "S", "UCG": "S",
+            "UAU": "Y", "UAC": "Y", "UAA": "", "UAG": "",
+            "UGU": "C", "UGC": "C", "UGA": "", "UGG": "W",
+            "CUU": "L", "CUC": "L", "CUA": "L", "CUG": "L",
+            "CCU": "P", "CCC": "P", "CCA": "P", "CCG": "P",
+            "CAU": "H", "CAC": "H", "CAA": "Q", "CAG": "Q",
+            "CGU": "R", "CGC": "R", "CGA": "R", "CGG": "R",
+            "AUU": "I", "AUC": "I", "AUA": "I", "AUG": "M",
+            "ACU": "T", "ACC": "T", "ACA": "T", "ACG": "T",
+            "AAU": "N", "AAC": "N", "AAA": "K", "AAG": "K",
+            "AGU": "S", "AGC": "S", "AGA": "R", "AGG": "R",
+            "GUU": "V", "GUC": "V", "GUA": "V", "GUG": "V",
+            "GCU": "A", "GCC": "A", "GCA": "A", "GCG": "A",
+            "GAU": "D", "GAC": "D", "GAA": "E", "GAG": "E",
+            "GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G"
+        }
+        IUPAC_TABLE = {"R": ["A", "G"],
+                       "Y": ["C", "U"],
+                       "M": ["C", "A"],
+                       "K": ["U", "G"],
+                       "W": ["U", "A"],
+                       "S": ["C", "G"],
+                       "B": ["C", "U", "G"],
+                       "D": ["A", "U", "G"],
+                       "H": ["A", "U", "C"],
+                       "V": ["A", "C", "G"],
+                       "N": ["A", "C", "G", "U"]                       
+                       }
+        
+        ## find first 'AUG' sequence
+        upper_data = self.data.upper()
+        if len(set(upper_data) - {'A', 'C', 'G', 'U'}) != 0:
+            return None
+        
+        start_idx = upper_data.index('AUG')
+        protein = ""
+        for i in range(start_idx, len(upper_data), 3):
+            codon = upper_data[i:i+3]
+            try:
+                amino_acid = CODON_TABLE[codon]
+                protein += amino_acid
+                if amino_acid == "":
+                    break
+            except KeyError:
+                break
+        
+        return Seq('Protein', protein)
+
+    
 if __name__ == "__main__":
     
     test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
@@ -277,3 +349,7 @@ if __name__ == "__main__":
     print(temp.count('a'))
     print(temp.cal_gc_ratio())
     print(temp.transcribe())
+    
+    test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
+    temp = Seq('RNA', test_seq)
+    print(temp.translate())
