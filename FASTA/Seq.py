@@ -159,11 +159,11 @@ class Seq:
         it contains undecided IUPAC codes."""
         
         if self.type == 'DNA':
-            if set(self.data) != {'A', 'C', 'G', 'T'}:
+            if len(set(self.data) - {'A', 'C', 'G', 'T'}) != 0:
                 # print('[WARNING] Sequence has more than A/C/G/T bases.')
                 print('[WARNING] Sequence has undecided IUPAC codes.')
         elif self.type == 'RNA':
-            if set(self.data) != {'A', 'C', 'G', 'U'}:
+            if len(set(self.data) - {'A', 'C', 'G', 'U'}) != 0:
                 # print('[WARNING] Sequence has more than A/C/G/U bases.')
                 print('[WARNING] Sequence has undecided IUPAC codes.')
         return
