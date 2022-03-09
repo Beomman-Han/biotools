@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, json
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from typing import Dict, TextIO, Tuple, Type, Generator
@@ -258,7 +258,23 @@ class FASTAProcessor(FileProcessor):
             for target in matched_iter:
                 print(f'find seq in {fasta[0]} ==> start : {target.start()+1}, end : {target.end()+1}')
 
+def export_json(output_name: str, seq_dict: dict):
+    """export_json
 
+    Parameters
+    ----------
+    output_name : str
+        Output file name
+    seq_dict : dict
+        SeqRecord dictionary
+    """
+    json_dic = {}
+    for title in seq_dict:
+        record = seq_dict[title]
+        json_dic[title] = { 'seq': str(record.seq),
+                            'description': record.description
+                            }
+    json.dump(json_dic, open(output_name, 'w'), indent=4)
     
 if __name__ == "__main__":
     
@@ -272,12 +288,12 @@ if __name__ == "__main__":
     print(repr(first_fasta.seq))
     print(type(first_fasta.seq))
     
-    obj_fasta.open("first_fasta",mode='w')
-    obj_fasta.write(first_id, str(first_fasta.seq))
-    obj_fasta.close()
+    #obj_fasta.open("first_fasta",mode='w')
+    #obj_fasta.write(first_id, str(first_fasta.seq))
+    #obj_fasta.close()
 
-    obj_fasta.open("second_fasta",mode='w')
-    obj_fasta.write(first_id, str(first_fasta.seq))
+    #obj_fasta.open("second_fasta",mode='w')
+    #obj_fasta.write(first_id, str(first_fasta.seq))
     # 1) obj_fasta.close()
     # 2) del obj_fasta
     
@@ -297,3 +313,6 @@ if __name__ == "__main__":
     
     #record_dict = RGS14_cDNA.to_dict(open(fasta_fn))
     #print(list(record_dict.keys())[0])
+    
+    print(len(fasta_dic))
+    export_json("test.json", fasta_dic)
