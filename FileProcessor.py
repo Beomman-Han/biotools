@@ -45,3 +45,26 @@ class FileProcessor(ABC):
             A line for writing file
         """
         pass
+    
+    @abstractmethod
+    def import_from_json(self, json_file: str) -> dict:
+        """import json by dictionary 
+
+        Parameters
+        ----------
+        json_dict : dict
+            Dictionary type
+        """
+        pass
+    
+    @abstractmethod
+    def export_to_json(self, json_dict: dict) -> None:
+        """Write json by dictionary 
+
+        Parameters
+        ----------
+        json_dict : dict
+            Dictionary type
+        """
+        pass
+    

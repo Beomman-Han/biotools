@@ -36,7 +36,7 @@ class SeqRecord:
 class FASTAProcessor(FileProcessor):
     """Class supports functions that process FASTA format file"""
     
-    def __init__(self, path : str) -> None:
+    def __init__(self, path: str) -> None:
         """Initialize FASTAProcessor class
 
         Parameters
@@ -51,6 +51,11 @@ class FASTAProcessor(FileProcessor):
         #sanity_check.fastaSanityCheck()
         
         return
+    
+    def __del__(self):
+        if self.open_obj:
+            print('close File')
+            self.close()
     
     def open(self, file_name, mode: str = "r") -> None:
         """_summary_
@@ -81,21 +86,35 @@ class FASTAProcessor(FileProcessor):
         self.open_obj.close()
         self.open_obj = False
     
-    def readline(self, skip_header: bool) -> str:
-        """Read file by line
+    def readline(self, handle: TextIO) -> Generator[Tuple[str], None, None]:
+        """Generator function parsing fasta format contents
 
         Parameters
         ----------
-        None
+        handle : TextIO
+            TextIO of fasta file
 
-        Returns
-        -------
-        str
-        > line from a line
+        Yields
+        ------
+        Tuple[str]
+            tuple of contig name, description, sequence
         """
-        pass
     
-    def write(self, title: str, sequence: str, desc : str = None) -> None:
+        sequences = []
+        for line in handle:
+            if line.startswith('>'):
+                if len(sequences) != 0:
+                    yield(title, desc, ''.join(sequences))
+                    
+                title = line.strip().split()[0][1:]
+                try: desc = ' '.join(line.strip().split()[1:])
+                except: desc = ''
+                sequences = []
+            else:
+                sequences.append(line.strip())
+        yield title, desc, ''.join(sequences)
+    
+    def write(self, title: str, sequence: str, desc: str = None) -> None:
         """Write file by line
 
         Parameters
@@ -115,36 +134,59 @@ class FASTAProcessor(FileProcessor):
                 self.open_obj.write(sequence[i:i+70]+'\n')
         pass
     
-    def simple_fasta_parser(self, handle : TextIO) -> Generator[Tuple[str], None, None]:
-        """Generator function parsing fasta format contents
+    def export_to_json(self, output_name: str, seq_dict: dict = False) -> None:
+        """export_json
 
         Parameters
         ----------
-        handle : TextIO
-            TextIO of fasta file
-
-        Yields
-        ------
-        Tuple[str]
-            tuple of contig name, description, sequence
+        output_name : str
+            Output file name
+        seq_dict : dict
+            SeqRecord dictionary
         """
         
-        sequences = []
-        for line in handle:
-            if line.startswith('>'):
-                if len(sequences) != 0:
-                    yield(title, desc, ''.join(sequences))
-                    
-                title = line.strip().split()[0][1:]
-                try: desc = ' '.join(line.strip().split()[1:])
-                except: desc = ''
-                sequences = []
-            else:
-                sequences.append(line.strip())
-        yield title, desc, ''.join(sequences)
+        json_dic = {}
+        if not seq_dict:
+            for record in self.parse(open(self.path)):
+                title = record.title
+                json_dic[title] = { 'seq': str(record.seq),
+                                    'description': record.description
+                                    }
+        else:
+            for title in seq_dict:
+                record = seq_dict[title]
+                json_dic[title] = { 'seq': str(record.seq),
+                                    'description': record.description
+                                    }
+        json.dump(json_dic, open(output_name, 'w'), indent=4)
+    
+    def import_from_json(self, json_file: str = False) -> dict:
+        """Data import from json
 
+        Parameters
+        ----------
+        json_file : str, optional
+            _description_, by default False
+
+        Returns
+        -------
+        dict
+            _description_
+        """
+        
+        if not json_file: json_file = self.path
+        result_dict = {}
+        json_dic = json.load(open(json_file))
+        for title in json_dic:
+            seq = Seq(json_dic[title]['seq'])
+            try: description = json_dic[title]['description']
+            except: description = ''
+            result_dict[title] = SeqRecord(seq, title, description)
+            
+        return result_dict
+    
     # def iterate(self, handle : Type["SeqRecord"]) -> Type["SeqRecord"]:
-    def iterate(self, handle : TextIO) -> Generator[Type['SeqRecord'], None, None]:
+    def iterate(self, handle: TextIO) -> Generator[Type['SeqRecord'], None, None]:
         """Generate function yield SeqRecord object from TextIO
 
         Parameters
@@ -158,10 +200,13 @@ class FASTAProcessor(FileProcessor):
         SeqRecord
             SeqRecord object containing sequence, title, description
         """
-        for title, description, seq in self.simple_fasta_parser(handle):
+        for title, description, seq in self.readline(handle):
+            check_out = self.sanity_check((title, description, seq), mode="r")
+            if not check_out:
+                sys.exit(f'\n==// WARNING //==\n- {title} seqeunce sanity check is failure...\n')
             yield SeqRecord(seq=Seq(seq), title=title, description=description)
 
-    def parse(self, handle : TextIO) -> Generator[Type['SeqRecord'], None, None]:
+    def parse(self, handle: TextIO) -> Generator[Type['SeqRecord'], None, None]:
         """Start parsing fasta file
 
         Parameters
@@ -177,7 +222,7 @@ class FASTAProcessor(FileProcessor):
         record = self.iterate(handle)
         return record
 
-    def to_dict(self, handle : TextIO) -> Dict[str, Type['SeqRecord']]:
+    def to_dict(self, handle: TextIO) -> Dict[str, Type['SeqRecord']]:
         """Make dict with {title: SeqRecord object} <- FIXME why make it?
 
         Parameters
@@ -204,13 +249,8 @@ class FASTAProcessor(FileProcessor):
             else:
                 record_dict[data_id] = record
         return record_dict
-    
-    def __del__(self):
-        if self.open_obj:
-            print('close File')
-            self.close()
 
-    def sanity_check(self,target_seq :tuple ,mode : str ) -> bool:
+    def sanity_check(self, target_seq: tuple, mode: str, verbose: bool = False ) -> bool:
         """sanity_check [summary]
 
         Parameters
@@ -220,6 +260,10 @@ class FASTAProcessor(FileProcessor):
             r,e
             r = respectively
             e = entire
+        verbose : bool
+            [description]
+            True = Print check message
+            False = Silent mode
         Returns
         -------
         bool
@@ -231,50 +275,32 @@ class FASTAProcessor(FileProcessor):
             [description]
         """
 
-        fastaElement : list= ['A','T','G','C','N','R','Y','S','W','K','M','B','D','H','V']
+        fastaElement: list = ['A','T','G','C','N','R','Y','S','W','K','M','B','D','H','V']
         #target_seq = next(fasta_seq)
-        print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
+        if verbose: print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
     
         if mode == "r":
             checkbase = [base in fastaElement for base in target_seq[2].strip()]
-            checkbool :bool = all(checkbase)
-            true_list =list((filter(lambda x: x, checkbase)))
+            checkbool: bool = all(checkbase)
+            true_list = list((filter(lambda x: x, checkbase)))
             if checkbool == False:
                 misbaseList = [ (target_seq[2][i],i+1) for i, b in enumerate(checkbase) if b == False]
                 #print(misbaseList)
-                print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
+                if verbose: print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
             if checkbool == False:
-                print("Check the seq")
+                if verbose: print("Check the seq")
                 return False
             else:
-                print("Seq is normal.")
+                if verbose: print("Seq is normal.")
                 return True
 
-    def find_seq(self,seq:str) -> None:
+    def find_seq(self, seq: str) -> None:
         fasta_obj = open(self.path,"r")
         p = re.compile(seq)
-        for fasta in self.simple_fasta_parser(fasta_obj):
+        for fasta in self.readline(fasta_obj):
             matched_iter = p.finditer((fasta[2]))
             for target in matched_iter:
                 print(f'find seq in {fasta[0]} ==> start : {target.start()+1}, end : {target.end()+1}')
-
-def export_json(output_name: str, seq_dict: dict):
-    """export_json
-
-    Parameters
-    ----------
-    output_name : str
-        Output file name
-    seq_dict : dict
-        SeqRecord dictionary
-    """
-    json_dic = {}
-    for title in seq_dict:
-        record = seq_dict[title]
-        json_dic[title] = { 'seq': str(record.seq),
-                            'description': record.description
-                            }
-    json.dump(json_dic, open(output_name, 'w'), indent=4)
     
 if __name__ == "__main__":
     
@@ -315,4 +341,8 @@ if __name__ == "__main__":
     #print(list(record_dict.keys())[0])
     
     print(len(fasta_dic))
-    export_json("test.json", fasta_dic)
+    obj_fasta.export_to_json("test.json")
+    
+    json_fa = FASTAProcessor('test.json')
+    test_dic = json_fa.import_from_json()
+    print(list(test_dic.keys()))
