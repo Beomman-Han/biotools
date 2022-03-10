@@ -301,6 +301,14 @@ class FASTAProcessor(FileProcessor):
             matched_iter = p.finditer((fasta[2]))
             for target in matched_iter:
                 print(f'find seq in {fasta[0]} ==> start : {target.start()+1}, end : {target.end()+1}')
+
+    def find_title(self,title:str) -> None:
+        fasta_obj = open(self.path,"r")
+        p = re.compile(title)
+        for fasta in self.readline(fasta_obj):
+            matched_iter = p.finditer((fasta[0]))
+            for target in matched_iter:
+                print(f'find title : {fasta[0]}')
     
 if __name__ == "__main__":
     
