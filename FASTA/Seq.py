@@ -7,7 +7,6 @@ class Seq:
         ) -> None:
         
         """Initializae Seq class with type, sequence.
-
         Parameters
         ----------
         type : str
@@ -21,7 +20,6 @@ class Seq:
     
     def check(self) -> bool:
         """Check whether initialization is normal.
-
         Returns
         -------
         bool
@@ -76,20 +74,19 @@ class Seq:
     def __repr__(self) -> str:
         """Represent Seq object by
         printing it's summary sequence data.
-
         Returns
         -------
         str
             Summary sequence data
         """
         
-        if len(self.data) < 60:
+        if len(self.data) <= 60:
             return f"Seq({self.data})"
         else:
             ## it would be better printing 60 char
             start = self.data[:30]
             end = self.data[-30:]
-            return f"Seq({start}...{end})"       
+            return f"Seq({start}...{end})"
 
     def __len__(self):
         return len(self.data)
@@ -100,7 +97,6 @@ class Seq:
     def complement(self) -> Type['Seq']:
         """Make complementary sequence of self.data.
         If Seq type is not DNA or RNA, it returns replicate object.
-
         Returns
         -------
         Seq
@@ -126,7 +122,6 @@ class Seq:
 
     def reverse(self) -> Type['Seq']:
         """Make reverse sequence of self.data.
-
         Returns
         -------
         Seq
@@ -141,7 +136,6 @@ class Seq:
     def reverse_complement(self) -> Type['Seq']:
         """Make reverse complement sequence of self.data.
         If Seq type is not DNA or RNA, it returns reverse sequence.
-
         Returns
         -------
         Seq
@@ -190,14 +184,12 @@ class Seq:
         """Count input char from self.data sequence.
         In case of DNA/RNA, it is recommended that 
         self.data have only 'ACGT(U)' not IUPAC character.
-
         Parameters
         ----------
         char : str
             Base or amino acid for counting
         verbose : bool, optional
             True, print warning message, by default True
-
         Returns
         -------
         int
@@ -211,12 +203,10 @@ class Seq:
     def cal_gc_ratio(self, verbose=True) -> float or None:
         """Calculate GC ratio of self.data (only for DNA/RNA).
         GC ratio = ( count of G + count of C ) / length of seq
-
         Parameters
         ----------
         verbose : bool, optional
             True, print warning message, by default True
-
         Returns
         -------
         float or None
@@ -289,7 +279,6 @@ class Seq:
         ----------
         verbose : bool, optional
             Print warning message, by default True
-
         Returns
         -------
         Seq or None
