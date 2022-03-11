@@ -1,4 +1,5 @@
 from typing import Dict, Type
+from Constant import *
 
 class Seq:
     def __init__(self,
@@ -25,21 +26,7 @@ class Seq:
         bool
             Is it normal content
         """
-        ## IUPAC info was referred from http://www.incodom.kr/IUPAC
-        BASE_IUPAC = {
-            'A', 'C', 'G', 'T',
-            'U', 'R', 'Y', 'M',
-            'K', 'W', 'S', 'B',
-            'D', 'H', 'V', 'N'
-        }
-        AMINO_ACID_IUPAC = {
-            'A', 'R', 'N', 'D',
-            'C', 'Q', 'E', 'G',
-            'H', 'I', 'L', 'K',
-            'M', 'F', 'P', 'S',
-            'T', 'W', 'Y', 'V',
-            'B', 'Z', 'X'
-        }
+        
         if self.type == 'DNA':
             DNA_IUPAC = BASE_IUPAC - {'U'}
             bases = list(set(self.data.upper()))
@@ -103,8 +90,6 @@ class Seq:
             Seq object which contains complementary sequence
         """
         
-        IUPAC_PAIR = {"R": "Y", "Y": "R", "M": "K", "K": "M", "W": "W",
-                    "S": "S", "B": "V", "V": "B", "D": "H", "H": "D"}
         if self.type == 'DNA':
             # watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
             DNA_PAIR = {**{"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
@@ -265,8 +250,6 @@ class Seq:
             return None
         if verbose:
             self._warn_iupac()
-        IUPAC_PAIR = {"R": "Y", "Y": "R", "M": "K", "K": "M", "W": "W",
-                    "S": "S", "B": "V", "V": "B", "D": "H", "H": "D"}
         DNA_RNA_PAIR = {**{'A': 'U', 'C': 'G', 'G': 'C', 'T': 'A'}, **IUPAC_PAIR}
         self._add_lower_case(DNA_RNA_PAIR)
         
@@ -291,38 +274,7 @@ class Seq:
             return None
         if verbose:
             self._warn_iupac()
-        
-        CODON_TABLE = {
-            "UUU": "F", "UUC": "F", "UUA": "L", "UUG": "L",
-            "UCU": "S", "UCC": "S", "UCA": "S", "UCG": "S",
-            "UAU": "Y", "UAC": "Y", "UAA": "", "UAG": "",
-            "UGU": "C", "UGC": "C", "UGA": "", "UGG": "W",
-            "CUU": "L", "CUC": "L", "CUA": "L", "CUG": "L",
-            "CCU": "P", "CCC": "P", "CCA": "P", "CCG": "P",
-            "CAU": "H", "CAC": "H", "CAA": "Q", "CAG": "Q",
-            "CGU": "R", "CGC": "R", "CGA": "R", "CGG": "R",
-            "AUU": "I", "AUC": "I", "AUA": "I", "AUG": "M",
-            "ACU": "T", "ACC": "T", "ACA": "T", "ACG": "T",
-            "AAU": "N", "AAC": "N", "AAA": "K", "AAG": "K",
-            "AGU": "S", "AGC": "S", "AGA": "R", "AGG": "R",
-            "GUU": "V", "GUC": "V", "GUA": "V", "GUG": "V",
-            "GCU": "A", "GCC": "A", "GCA": "A", "GCG": "A",
-            "GAU": "D", "GAC": "D", "GAA": "E", "GAG": "E",
-            "GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G"
-        }
-        IUPAC_TABLE = {"R": ["A", "G"],
-                       "Y": ["C", "U"],
-                       "M": ["C", "A"],
-                       "K": ["U", "G"],
-                       "W": ["U", "A"],
-                       "S": ["C", "G"],
-                       "B": ["C", "U", "G"],
-                       "D": ["A", "U", "G"],
-                       "H": ["A", "U", "C"],
-                       "V": ["A", "C", "G"],
-                       "N": ["A", "C", "G", "U"]                       
-                       }
-        
+                
         ## find first 'AUG' sequence
         upper_data = self.data.upper()
         if len(set(upper_data) - {'A', 'C', 'G', 'U'}) != 0:
