@@ -83,13 +83,13 @@ class Seq:
             Summary sequence data
         """
         
-        if len(self.data) < 60:
+        if len(self.data) <= 60:
             return f"Seq({self.data})"
         else:
             ## it would be better printing 60 char
             start = self.data[:30]
             end = self.data[-30:]
-            return f"Seq({start}...{end})"       
+            return f"Seq({start}...{end})"
 
     def __len__(self):
         return len(self.data)
