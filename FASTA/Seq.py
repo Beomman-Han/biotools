@@ -303,12 +303,24 @@ class Seq:
         
         return Seq(''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1], 'RNA')
     
-    def translate(self, verbose=True) -> Type['Seq'] or None:
+    def translate(self,
+        frame_idx : int = 0,
+        verbose : bool = True
+        ) -> Type['Seq'] or None:
         
-        """Translate RNA sequence to protein sequence.
+        """Translate RNA sequence to protein sequence with frame index.
+        If frame index is 0, then translate with ORF.
+
+        frame_idx
+        123 ->          0 ->          <-  -3-2-1   
+        |||             |                   |||
+        ACGUACGUACGUACGUAUGAAACCCGGGAUGACGUUACG... (RNA)
+                        |-> (ORF)
         
         Parameters
         ----------
+        frame_idx : int, optional
+            Frame index, by default 0
         verbose : bool, optional
             Print warning message, by default True
             
@@ -325,15 +337,36 @@ class Seq:
         if verbose:
             self._warn_iupac()
                 
-        ## find first 'AUG' sequence
+        ## find first 'AUG' sequence (ORF)
         upper_data = self.data.upper()
         if len(set(upper_data) - {'A', 'C', 'G', 'U'}) != 0:
             return None
-        
-        start_idx = upper_data.index('AUG')
+
+        step = 3
+        end_idx = len(upper_data)
+        if frame_idx == 0:
+            try:
+                start_idx = upper_data.index('AUG')
+            except ValueError:
+                return None
+        if abs(frame_idx) == 1:
+            start_idx = 0
+        elif abs(frame_idx) == 2:
+            start_idx = 1
+        elif abs(frame_idx) == 3:
+            start_idx = 2
+
         protein = ""
-        for i in range(start_idx, len(upper_data), 3):
-            codon = upper_data[i:i+3]
+        for i in range(start_idx, end_idx, step):
+            if frame_idx >= 0:
+                codon = upper_data[i:i+step]
+            else:
+                if len(upper_data) - i - step == 0:
+                    ## trivial case - upper_data[3:0:-1] -> upper_case[3::-1]
+                    codon = upper_data[len(upper_data)-i-1::-1]
+                else:
+                    codon = upper_data[len(upper_data)-i-1:len(upper_data)-i-step-1:-1]
+
             try:
                 amino_acid = CODON_TABLE[codon]
                 protein += amino_acid
@@ -341,7 +374,7 @@ class Seq:
                     break
             except KeyError:
                 break
-        
+
         return Seq(protein, 'Protein')
 
     
@@ -360,6 +393,13 @@ if __name__ == "__main__":
     # print(temp.transcribe())
     # print(temp._has_iupac())
     
-    test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
+    # test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
+    test_seq = 'AAAAAAAAAAAAC'
     temp = Seq(test_seq, 'RNA')
-    print(temp.translate())
+    print(temp.translate(0))
+    print(temp.translate(1))
+    print(temp.translate(2))
+    print(temp.translate(3))
+    print(temp.translate(-1))
+    print(temp.translate(-2))
+    print(temp.translate(-3))
