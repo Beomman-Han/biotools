@@ -3,20 +3,20 @@ from Constant import *
 
 class Seq:
     def __init__(self,
-        type : str,
-        data : str
+        data : str,
+        type : str = 'DNA'
         ) -> None:
         
         """Initialize Seq class with type, sequence.
         
         Parameters
         ----------
-        type : str
-            Type of sequence ('DNA' or 'RNA' or 'Protein')
         data : str
             Sequence string
+        type : str, optional
+            Type of sequence ('DNA' or 'RNA' or 'Protein'), by default 'DNA'
         """
-        
+
         self.type = type
         self.data = data
         
