@@ -120,16 +120,16 @@ class Seq:
             # watson_crick = {"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}
             DNA_PAIR = {**{"A": "T", "T": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
             self._add_lower_case(DNA_PAIR)
-            return Seq(self.type, "".join([DNA_PAIR[base] for base in self.data]))
+            return Seq("".join([DNA_PAIR[base] for base in self.data]), self.type)
         elif self.type == 'RNA':
             # watson_crick = {"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}
             RNA_PAIR = {**{"A": "U", "U": "A", "G": "C", "C": "G", "N": "N"}, **IUPAC_PAIR}
             self._add_lower_case(RNA_PAIR)
-            return Seq(self.type, "".join([RNA_PAIR[base] for base in self.data]))
+            return Seq("".join([RNA_PAIR[base] for base in self.data]), self.type)
         else:
             print('[WARNING] Only DNA or RNA sequence can get complement seq.')
             ## return replicate Seq object
-            return Seq(self.type, self.data)
+            return Seq(self.data, self.type)
 
     def reverse(self) -> Type['Seq']:
         
@@ -141,7 +141,7 @@ class Seq:
             Seq object which contains reverse sequence
         """
 
-        return Seq(self.type, self.data[::-1])
+        return Seq(self.data[::-1],  self.type)
 
     def get_data(self) -> str:
         
@@ -169,7 +169,7 @@ class Seq:
             rev_com = self.complement().get_data()[::-1]
         else:
             rev_com = self.data[::-1]
-        return Seq(self.type, rev_com)
+        return Seq(rev_com, self.type)
 
     def _has_iupac(self) -> bool:
         
@@ -301,7 +301,7 @@ class Seq:
         DNA_RNA_PAIR = {**{'A': 'U', 'C': 'G', 'G': 'C', 'T': 'A'}, **IUPAC_PAIR}
         self._add_lower_case(DNA_RNA_PAIR)
         
-        return Seq('RNA', ''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1])
+        return Seq(''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1], 'RNA')
     
     def translate(self, verbose=True) -> Type['Seq'] or None:
         
@@ -342,7 +342,7 @@ class Seq:
             except KeyError:
                 break
         
-        return Seq('Protein', protein)
+        return Seq(protein, 'Protein')
 
     
 if __name__ == "__main__":
@@ -350,7 +350,7 @@ if __name__ == "__main__":
     test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
     print(test_seq)
     
-    temp = Seq('DNA', test_seq)
+    # temp = Seq('DNA', test_seq)
     # print(temp.check())
     # print(temp.complement())
     # print(temp.reverse())
@@ -358,8 +358,8 @@ if __name__ == "__main__":
     # print(temp.count('a'))
     # print(temp.cal_gc_ratio())
     # print(temp.transcribe())
-    print(temp._has_iupac())
+    # print(temp._has_iupac())
     
     test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
-    temp = Seq('RNA', test_seq)
+    temp = Seq(test_seq, 'RNA')
     print(temp.translate())
