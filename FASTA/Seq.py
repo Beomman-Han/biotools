@@ -336,6 +336,8 @@ class Seq:
             return None
         if verbose:
             self._warn_iupac()
+            if self._has_iupac():
+                return None
                 
         ## find first 'AUG' sequence (ORF)
         upper_data = self.data.upper()
