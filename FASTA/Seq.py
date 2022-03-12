@@ -7,7 +7,8 @@ class Seq:
         data : str
         ) -> None:
         
-        """Initializae Seq class with type, sequence.
+        """Initialize Seq class with type, sequence.
+        
         Parameters
         ----------
         type : str
@@ -17,10 +18,14 @@ class Seq:
         """
         
         self.type = type
-        self.data = data    
+        self.data = data
+        
+        return
     
     def check(self) -> bool:
+        
         """Check whether initialization is normal.
+        
         Returns
         -------
         bool
@@ -59,8 +64,9 @@ class Seq:
         return True
         
     def __repr__(self) -> str:
-        """Represent Seq object by
-        printing it's summary sequence data.
+        
+        """Represent Seq object by printing it's summary sequence data.
+        
         Returns
         -------
         str
@@ -75,15 +81,35 @@ class Seq:
             end = self.data[-30:]
             return f"Seq({start}...{end})"
 
-    def __len__(self):
+    def __len__(self) -> int:
+        
+        """Return the length of self.data (len(Seq)).
+        
+        Returns
+        -------
+        int
+            Length of self.data
+        """
+        
         return len(self.data)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        
+        """Transform Seq object to string object (str(Seq)).
+        
+        Returns
+        -------
+        str
+            String format of Seq object
+        """
+        
         return str(self.data)
 
     def complement(self) -> Type['Seq']:
+        
         """Make complementary sequence of self.data.
         If Seq type is not DNA or RNA, it returns replicate object.
+        
         Returns
         -------
         Seq
@@ -106,7 +132,9 @@ class Seq:
             return Seq(self.type, self.data)
 
     def reverse(self) -> Type['Seq']:
+        
         """Make reverse sequence of self.data.
+       
         Returns
         -------
         Seq
@@ -116,11 +144,21 @@ class Seq:
         return Seq(self.type, self.data[::-1])
 
     def get_data(self) -> str:
+        
+        """Getter method of self.data attribute
+        
+        Returns
+        -------
+        str
+            self.data
+        """
         return self.data
 
     def reverse_complement(self) -> Type['Seq']:
+        
         """Make reverse complement sequence of self.data.
         If Seq type is not DNA or RNA, it returns reverse sequence.
+        
         Returns
         -------
         Seq
@@ -134,8 +172,8 @@ class Seq:
         return Seq(self.type, rev_com)
 
     def _has_iupac(self) -> bool:
-        """Does self.data have IUPAC character 
-        not 'ACGT(U)' base.
+        
+        """Does self.data have IUPAC character not 'ACGT(U)' base.
 
         Returns
         -------
@@ -152,6 +190,7 @@ class Seq:
         return False
     
     def _warn_iupac(self) -> None:
+        
         """Warn if self.data has more than 'ACGT(U)' base,
         it contains undecided IUPAC codes."""
         
@@ -166,15 +205,18 @@ class Seq:
         return
     
     def count(self, char : str, verbose=True) -> int:
+        
         """Count input char from self.data sequence.
         In case of DNA/RNA, it is recommended that 
         self.data have only 'ACGT(U)' not IUPAC character.
+        
         Parameters
         ----------
         char : str
             Base or amino acid for counting
         verbose : bool, optional
             True, print warning message, by default True
+            
         Returns
         -------
         int
@@ -186,12 +228,16 @@ class Seq:
         return self.data.upper().count(char.upper())
         
     def cal_gc_ratio(self, verbose=True) -> float or None:
+        
         """Calculate GC ratio of self.data (only for DNA/RNA).
+        
         GC ratio = ( count of G + count of C ) / length of seq
+        
         Parameters
         ----------
         verbose : bool, optional
             True, print warning message, by default True
+            
         Returns
         -------
         float or None
@@ -209,6 +255,7 @@ class Seq:
     def _add_lower_case(self,
         dict : Dict[str, str]
         ) -> None:
+        
         """Add lower case of keys at input dictionary.
         
         Example
@@ -231,6 +278,7 @@ class Seq:
         return
         
     def transcribe(self, verbose=True) -> Type['Seq'] or None:
+        
         """Transcribe DNA sequence to RNA sequence.
         
         Parameters
@@ -256,12 +304,14 @@ class Seq:
         return Seq('RNA', ''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1])
     
     def translate(self, verbose=True) -> Type['Seq'] or None:
+        
         """Translate RNA sequence to protein sequence.
         
         Parameters
         ----------
         verbose : bool, optional
             Print warning message, by default True
+            
         Returns
         -------
         Seq or None
