@@ -331,6 +331,40 @@ class Seq:
         self._add_lower_case(DNA_RNA_PAIR)
         
         return Seq(''.join([DNA_RNA_PAIR[base] for base in template_dna])[::-1], 'RNA')
+
+    def reverse_transcribe(self,
+        start_idx : int = 0,
+        verbose : bool = True
+        ) -> Type['Seq'] or None:
+        
+        """Reverse transcribe RNA sequence to DNA sequence.
+        
+        Parameters
+        ----------
+        start_idx : int, optional
+            Start index for reverse transcription, by default 0
+        verbose : bool, optional
+            Print warning message or not, by default True
+        
+        Returns
+        -------
+        Seq or None
+            Seq object containing DNA sequence        
+        """
+        
+        if self.type != 'RNA':
+            if verbose:
+                print('[WARNING] Reverse transcription is only for RNA')
+            return None
+
+        template_rna = self.data[start_idx:]
+        if verbose:
+            self._warn_iupac(template_rna)
+
+        RNA_DNA_PAIR = {**{'A': 'T', 'C': 'G', 'G': 'C', 'U': 'A'}, **IUPAC_PAIR}
+        self._add_lower_case(RNA_DNA_PAIR)
+        
+        return Seq(''.join([RNA_DNA_PAIR[base] for base in template_rna])[::-1], 'DNA')
     
     def translate(self,
         start_idx : None or int = None,
@@ -428,26 +462,27 @@ class Seq:
     
 if __name__ == "__main__":
     
-    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
+    # test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
     # print(test_seq)
     
-    temp = Seq(test_seq, 'DNA')
+    # temp = Seq(test_seq, 'DNA')
     # print(temp.check())
     # print(temp.complement())
     # print(temp.reverse())
     # print(temp.reverse_complement())
     # print(temp.count('a'))
     # print(temp.cal_gc_ratio())
-    print(temp.transcribe(-1))
+    # print(temp.transcribe(-1))
     # print(temp._has_iupac())
     
-    # test_seq = 'AAUGAUGAUGAUGUGAAAAAA'
+    test_seq = 'AAUGAUGAUGAUGUGAAAAAA'
     # # test_seq = 'AUGAAAAAAAAAAUAA'
     # # test_seq = 'AAAAAAAAGUAAA'
     # # test_seq = 'AAAAAAAAAAAAC'
-    # temp = Seq(test_seq, 'RNA')
+    temp = Seq(test_seq, 'RNA')
     # print(temp.translate())
     # print(temp.translate(1))
     # print(temp.translate(3))
     # print(temp.translate(-3))
     # print(temp.find_orf())
+    print(temp.reverse_transcribe().get_data())
