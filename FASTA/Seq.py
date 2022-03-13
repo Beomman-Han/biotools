@@ -281,6 +281,17 @@ class Seq:
         
         """Transcribe DNA sequence to RNA sequence.
         
+        Example
+        -------
+        >>> s = Seq('ACGTACGTACGT')
+        >>> s.transcribe()
+        ACGUACGUACGU
+        >>>     
+        >>> s = Seq('ACGUACGUACGU', 'RNA')
+        >>> s.transcribe()
+        [WARNING] Transcription is only for DNA
+        None
+        
         Parameters
         ----------
         verbose : bool, optional
@@ -316,6 +327,20 @@ class Seq:
         |||             |                   |||
         ACGUACGUACGUACGUAUGAAACCCGGGAUGACGUUACG... (RNA)
                         |-> (ORF)
+        
+        Example
+        -------
+        >>> s = Seq('AAUGAUGAUGAUGUGAAAAAA', 'RNA')
+        >>> s.translate()
+        MMMM
+        >>> s.translate(1)
+        NDDDVKK
+        >>> s.translate(3)
+        
+        >>> s.translate(-1)
+        KKV
+        >>> s.translate(-2)
+        KKCSSSS
         
         Parameters
         ----------
@@ -420,16 +445,12 @@ if __name__ == "__main__":
     # print(temp.transcribe())
     # print(temp._has_iupac())
     
-    # test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
+    test_seq = 'AAUGAUGAUGAUGUGAAAAAA'
     # test_seq = 'AUGAAAAAAAAAAUAA'
     # test_seq = 'AAAAAAAAGUAAA'
-    test_seq = 'AAAAAAAAAAAAC'
+    # test_seq = 'AAAAAAAAAAAAC'
     temp = Seq(test_seq, 'RNA')
-    # print(temp.translate(0))
-    # print(temp.translate(1))
-    # print(temp.translate(2))
-    # print(temp.translate(3))
-    # print(temp.translate(-1))
-    # print(temp.translate(-2))
-    # print(temp.translate(-3))
+    print(temp.translate())
+    print(temp.translate(3))
+    print(temp.translate(-3))
     print(temp.find_orf())
