@@ -379,11 +379,36 @@ class Seq:
 
         return Seq(protein, 'Protein')
 
+    def find_orf(self) -> int or None:
+        
+        """Find ORF frame index from self.data.
+        
+                |
+        12312312312312312312312312312312
+        ACGUACGUAUGAAACCCAAACCCCCCAUGUGA
+
+        Returns
+        -------
+        int or None
+            Frame index (1 or 2 or 3 or -1 or -2 or -3),
+            if there is no ORF, return None
+        """
+        
+        try:
+            start_idx = self.data.index('AUG')
+            return start_idx % 3 + 1
+        except ValueError:
+            try:
+                start_idx = self.data[::-1].index('AUG')
+                return -1*(start_idx % 3 + 1)
+            except ValueError:
+                return None
+        
     
 if __name__ == "__main__":
     
-    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
-    print(test_seq)
+    # test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
+    # print(test_seq)
     
     # temp = Seq('DNA', test_seq)
     # print(temp.check())
@@ -396,12 +421,15 @@ if __name__ == "__main__":
     # print(temp._has_iupac())
     
     # test_seq = 'AAAAAAAAAUGAUGAUGAUGUGAAAAAA'
+    # test_seq = 'AUGAAAAAAAAAAUAA'
+    # test_seq = 'AAAAAAAAGUAAA'
     test_seq = 'AAAAAAAAAAAAC'
     temp = Seq(test_seq, 'RNA')
-    print(temp.translate(0))
-    print(temp.translate(1))
-    print(temp.translate(2))
-    print(temp.translate(3))
-    print(temp.translate(-1))
-    print(temp.translate(-2))
-    print(temp.translate(-3))
+    # print(temp.translate(0))
+    # print(temp.translate(1))
+    # print(temp.translate(2))
+    # print(temp.translate(3))
+    # print(temp.translate(-1))
+    # print(temp.translate(-2))
+    # print(temp.translate(-3))
+    print(temp.find_orf())
