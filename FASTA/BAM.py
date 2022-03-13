@@ -22,8 +22,17 @@ class BAMProcessor(FileProcessor):
     export_to_json()
     """
     
-    def __init__(self):
-        pass    
+    def __init__(self, path : str) -> None:
+        """Initialize BAMProcessor class
+
+        Parameters
+        ----------
+        path : str
+            Path of BAM file
+        """        
+        self.path = path
+        return
+        
     def sanity_check(self):
         pass
     def open(self):
