@@ -287,7 +287,10 @@ class Seq:
 
         return
         
-    def transcribe(self, verbose=True) -> Type['Seq'] or None:
+    def transcribe(self,
+        start_idx : int = 0,
+        verbose : bool = True
+        ) -> Type['Seq'] or None:
         
         """Transcribe DNA sequence to RNA sequence.
         
@@ -304,25 +307,30 @@ class Seq:
         
         Parameters
         ----------
+        start_idx : int, optional
+            Start index for transcription, by default 0
         verbose : bool, optional
             Print warning message, by default True
         
         Returns
         -------
         Seq or None
-            Seq object containing trancript or None
+            Seq object containing trancript (RNA) or None
         """
         
         if self.type != 'DNA':
             if verbose:
                 print('[WARNING] Transcription is only for DNA')
             return None
+
+        template_dna = self.data[start_idx:]
         if verbose:
-            self._warn_iupac()
+            self._warn_iupac(template_dna)
+
         DNA_RNA_PAIR = {**{'A': 'U', 'C': 'G', 'G': 'C', 'T': 'A'}, **IUPAC_PAIR}
         self._add_lower_case(DNA_RNA_PAIR)
         
-        return Seq(''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1], 'RNA')
+        return Seq(''.join([DNA_RNA_PAIR[base] for base in template_dna])[::-1], 'RNA')
     
     def translate(self,
         start_idx : None or int = None,
@@ -360,7 +368,7 @@ class Seq:
             
         Returns
         -------
-        Seq or None
+        Seq
             Seq object containing protein or None
         """
         
@@ -368,14 +376,14 @@ class Seq:
             if verbose:
                 print('[WARNING] Translation is only for RNA')
             return None
-                
+
         ## find first 'AUG' sequence (ORF)
         if start_idx == None:
             start_idx = self.data.upper().find('AUG')
         template_rna = self.data[start_idx:].upper()
         if self._has_iupac(template_rna):
             if verbose:
-                self._warn_iupac()
+                self._warn_iupac(template_rna)
             return None
 
         step = 3        
@@ -420,26 +428,26 @@ class Seq:
     
 if __name__ == "__main__":
     
-    # test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
+    test_seq = 'ATGCTAGTCAGTCGTAGCTATTTGTACGTATCGATCTACTAGC'
     # print(test_seq)
     
-    # temp = Seq('DNA', test_seq)
+    temp = Seq(test_seq, 'DNA')
     # print(temp.check())
     # print(temp.complement())
     # print(temp.reverse())
     # print(temp.reverse_complement())
     # print(temp.count('a'))
     # print(temp.cal_gc_ratio())
-    # print(temp.transcribe())
+    print(temp.transcribe(-1))
     # print(temp._has_iupac())
     
-    test_seq = 'AAUGAUGAUGAUGUGAAAAAA'
-    # test_seq = 'AUGAAAAAAAAAAUAA'
-    # test_seq = 'AAAAAAAAGUAAA'
-    # test_seq = 'AAAAAAAAAAAAC'
-    temp = Seq(test_seq, 'RNA')
-    print(temp.translate())
-    print(temp.translate(1))
-    print(temp.translate(3))
-    print(temp.translate(-3))
-    print(temp.find_orf())
+    # test_seq = 'AAUGAUGAUGAUGUGAAAAAA'
+    # # test_seq = 'AUGAAAAAAAAAAUAA'
+    # # test_seq = 'AAAAAAAAGUAAA'
+    # # test_seq = 'AAAAAAAAAAAAC'
+    # temp = Seq(test_seq, 'RNA')
+    # print(temp.translate())
+    # print(temp.translate(1))
+    # print(temp.translate(3))
+    # print(temp.translate(-3))
+    # print(temp.find_orf())
