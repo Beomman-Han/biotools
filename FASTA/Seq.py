@@ -171,6 +171,7 @@ class Seq:
             rev_com = self.data[::-1]
         return Seq(rev_com, self.type)
 
+    ## FIXME
     def _has_iupac(self) -> bool:
         
         """Does self.data have IUPAC character not 'ACGT(U)' base.
@@ -315,16 +316,17 @@ class Seq:
         return Seq(''.join([DNA_RNA_PAIR[base] for base in self.data])[::-1], 'RNA')
     
     def translate(self,
-        frame_idx : int = 0,
+        start_idx : None or int = None,
         verbose : bool = True
         ) -> Type['Seq'] or None:
         
-        """Translate RNA sequence to protein sequence with frame index.
-        If frame index is 0, then translate with ORF.
+        """Translate RNA sequence to protein sequence with start index.
+        If start index is None, then find ORF and translate with ORF.
+        If start index is None and no ORF, return None.
 
-        frame_idx
-        123 ->          0 ->          <-  -3-2-1   
-        |||             |                   |||
+        start_idx  (direction) ->->
+        0123 ->->      None(16)          -5  -1
+        ||||            |                 |   |
         ACGUACGUACGUACGUAUGAAACCCGGGAUGACGUUACG... (RNA)
                         |-> (ORF)
         
@@ -333,19 +335,17 @@ class Seq:
         >>> s = Seq('AAUGAUGAUGAUGUGAAAAAA', 'RNA')
         >>> s.translate()
         MMMM
-        >>> s.translate(1)
+        >>> s.translate(0)
         NDDDVKK
-        >>> s.translate(3)
-        
-        >>> s.translate(-1)
-        KKV
-        >>> s.translate(-2)
-        KKCSSSS
+        >>> s.translate(-3)
+        K
+        >>> s.translate(-6)
+        KK
         
         Parameters
         ----------
-        frame_idx : int, optional
-            Frame index, by default 0
+        start_idx : int, optional
+            Start index for translation, by default None
         verbose : bool, optional
             Print warning message, by default True
             
@@ -361,39 +361,21 @@ class Seq:
             return None
         if verbose:
             self._warn_iupac()
-            if self._has_iupac():
-                return None
+            # if self._has_iupac():
+            #     return None
                 
         ## find first 'AUG' sequence (ORF)
-        upper_data = self.data.upper()
-        if len(set(upper_data) - {'A', 'C', 'G', 'U'}) != 0:
+        if start_idx == None:
+            start_idx = self.data.upper().find('AUG')
+            
+        template_rna = self.data[start_idx:].upper()
+        if len(set(template_rna) - {'A', 'C', 'G', 'U'}) != 0:
             return None
 
-        step = 3
-        end_idx = len(upper_data)
-        if frame_idx == 0:
-            try:
-                start_idx = upper_data.index('AUG')
-            except ValueError:
-                return None
-        if abs(frame_idx) == 1:
-            start_idx = 0
-        elif abs(frame_idx) == 2:
-            start_idx = 1
-        elif abs(frame_idx) == 3:
-            start_idx = 2
-
+        step = 3        
         protein = ""
-        for i in range(start_idx, end_idx, step):
-            if frame_idx >= 0:
-                codon = upper_data[i:i+step]
-            else:
-                if len(upper_data) - i - step == 0:
-                    ## trivial case - upper_data[3:0:-1] -> upper_case[3::-1]
-                    codon = upper_data[len(upper_data)-i-1::-1]
-                else:
-                    codon = upper_data[len(upper_data)-i-1:len(upper_data)-i-step-1:-1]
-
+        for i in range(0, len(template_rna), step):
+            codon = template_rna[i:i+3]
             try:
                 amino_acid = CODON_TABLE[codon]
                 protein += amino_acid
@@ -451,6 +433,7 @@ if __name__ == "__main__":
     # test_seq = 'AAAAAAAAAAAAC'
     temp = Seq(test_seq, 'RNA')
     print(temp.translate())
+    print(temp.translate(1))
     print(temp.translate(3))
     print(temp.translate(-3))
     print(temp.find_orf())
