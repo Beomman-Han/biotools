@@ -194,19 +194,24 @@ class Seq:
                 return True
         return False
     
-    def _warn_iupac(self) -> None:
+    def _warn_iupac(self, seq : str = '') -> None:
         
-        """Warn if self.data has more than 'ACGT(U)' base,
-        it contains undecided IUPAC codes."""
+        """Warn if sequence has more than 'ACGT(U)' base,
+        it contains undecided IUPAC codes.
+        Default sequence is self.data sequence.
         
-        if self.type == 'DNA':
-            if len(set(self.data) - {'A', 'C', 'G', 'T'}) != 0:
-                # print('[WARNING] Sequence has more than A/C/G/T bases.')
-                print('[WARNING] Sequence has undecided IUPAC codes.')
-        elif self.type == 'RNA':
-            if len(set(self.data) - {'A', 'C', 'G', 'U'}) != 0:
-                # print('[WARNING] Sequence has more than A/C/G/U bases.')
-                print('[WARNING] Sequence has undecided IUPAC codes.')
+        Parameters
+        ----------
+        seq : str, optional
+            Input sequence for warning, by default ''
+        """
+        
+        if seq == '':
+            seq = self.data
+
+        if self._has_iupac(seq):
+            print('[WARNING] Sequence has undecided IUPAC codes.')
+
         return
     
     def count(self, char : str, verbose=True) -> int:
