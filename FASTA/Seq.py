@@ -171,10 +171,14 @@ class Seq:
             rev_com = self.data[::-1]
         return Seq(rev_com, self.type)
 
-    ## FIXME
-    def _has_iupac(self) -> bool:
+    def _has_iupac(self, seq : str) -> bool:
         
-        """Does self.data have IUPAC character not 'ACGT(U)' base.
+        """Does sequence have IUPAC character not 'ACGT(U)' base.
+
+        Parameters
+        ----------
+        seq : str
+            Input sequence for checking
 
         Returns
         -------
@@ -183,10 +187,10 @@ class Seq:
         """
         
         if self.type == 'DNA':
-            if len(set(self.data) - {'A', 'C', 'G', 'T'}) != 0:
+            if len(set(seq.upper()) - {'A', 'C', 'G', 'T'}) != 0:
                 return True
         elif self.type == 'RNA':
-            if len(set(self.data) - {'A', 'C', 'G', 'U'}) != 0:
+            if len(set(seq.upper()) - {'A', 'C', 'G', 'U'}) != 0:
                 return True
         return False
     
@@ -359,17 +363,14 @@ class Seq:
             if verbose:
                 print('[WARNING] Translation is only for RNA')
             return None
-        if verbose:
-            self._warn_iupac()
-            # if self._has_iupac():
-            #     return None
                 
         ## find first 'AUG' sequence (ORF)
         if start_idx == None:
             start_idx = self.data.upper().find('AUG')
-            
         template_rna = self.data[start_idx:].upper()
-        if len(set(template_rna) - {'A', 'C', 'G', 'U'}) != 0:
+        if self._has_iupac(template_rna):
+            if verbose:
+                self._warn_iupac()
             return None
 
         step = 3        
