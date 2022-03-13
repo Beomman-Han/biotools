@@ -2,12 +2,34 @@ from abc import ABC, abstractmethod
 import io
 
 class FileProcessor(ABC):
-    """Abstract class for processing file
+    """Abstract class for child classes which support functions processing file
+    containig biological information
     
-    FASTA - 
-    VCF - 
-    GTF *
-    GFF *
+    Child Class
+    -----------
+    FASTAProcessor
+        Implemented (last at 2022/03/13)
+    *BAMProcessor
+        On going
+    
+    Candidates
+    ----------
+    *VCFProcessor
+        (to be implemented)
+    *GTFProcessor
+        (to be implemented)
+    *GFFProcessor
+        (to be implemented)
+        
+    Interface
+    ---------
+    sanity_check()
+    open()
+    close()
+    readline()
+    write()
+    import_from_json()
+    export_to_json()
     """
 
     @abstractmethod
