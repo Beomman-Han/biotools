@@ -305,11 +305,8 @@ class VCFProcessor(FileProcessor):
             filt_gt = False
             for spl_idx in range(format_idx+1, len(self.header)):
                 spl_genotype = cols[spl_idx].split(':')[gt_idx]
-                for genotype in genotypes:
-                    if genotype in spl_genotype:
-                        filt_gt = True
-                        break
-                if filt_gt:
+                if spl_genotype in genotypes:
+                    filt_gt = True
                     break
             if not filt_gt:
                 yield line
@@ -365,12 +362,8 @@ class VCFProcessor(FileProcessor):
             chk_gt = False
             for spl_idx in range(format_idx+1, len(self.header)):
                 spl_genotype = cols[spl_idx].split(':')[gt_idx]
-                for genotype in genotypes:
-                    if genotype in spl_genotype:
-                        chk_gt = True
-                        break
-                if chk_gt:
-                    break
+                if spl_genotype in genotypes:
+                    chk_gt = True
             if chk_gt:
                 yield line
             line = self.readline()
