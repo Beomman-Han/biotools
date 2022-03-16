@@ -1,3 +1,4 @@
+from re import S
 import sys, io, gzip, os
 from typing import Generator, List
 from FileProcessor import FileProcessor
@@ -169,7 +170,8 @@ class VCFProcessor(FileProcessor):
         
         if line[0] == '#':
             self.header = line[1:].strip('\n').split('\t')
-            line = self.f_obj.readline().decode() if self._compressed else self.f_obj.readline()
+            if skip_header:
+                line = self.f_obj.readline().decode() if self._compressed else self.f_obj.readline()
 
         return line
 
@@ -374,6 +376,37 @@ class VCFProcessor(FileProcessor):
             line = self.readline()
         
         return
+    
+    def _check_header(self, line : str) -> bool:
+        """Check whether input line is vcf header line.
+        
+        Parameters
+        ----------
+        line : str
+            Input vcf line for checking
+        
+        Returns
+        -------
+        bool
+            Whether line is header line
+        """
+        
+        return line[0] == '#'
+    
+    def get_header_line(self):
+        
+        proc = VCFProcessor(self.vcf)
+        proc.open()
+        line = proc.readline(skip_header=False)
+        while line != '':
+            if self._check_header(line):
+                yield line
+            else:
+                break
+            line = proc.readline(skip_header=False)            
+        proc.close()
+        
+        return
 
 if __name__ == '__main__':
     # vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
@@ -383,5 +416,8 @@ if __name__ == '__main__':
     # for line in proc.get_genotype('0/0'):
     #     print(line.strip())
     
-    for line in proc.filter_genotype(['.', '0', '0/0']):
+    # for line in proc.filter_genotype(['.', '0', '0/0']):
+    #     print(line.strip())
+    
+    for line in proc.get_header_line():
         print(line.strip())
