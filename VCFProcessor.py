@@ -185,13 +185,13 @@ class VCFProcessor(FileProcessor):
         """
 
         if self._compressed:
-            if self.vcf == None:
-                self.vcf = self.open(mode='wb')
-            self.vcf.write(line.encode())
+            if not self.f_obj:
+                self.f_obj = self.open(mode='wb')
+            self.f_obj.write(line.encode())
         else:
-            if self.vcf == None:
-                self.vcf = self.open(mode='w')
-            self.vcf.write(line)
+            if not self.f_obj:
+                self.f_obj = self.open(mode='w')
+            self.f_obj.write(line)
 
         return
 
