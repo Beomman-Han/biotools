@@ -65,8 +65,8 @@ class VCFProcessor(FileProcessor):
         if os.path.isfile(path):
             self._vcf = path
         else:
-            print(f'{path} does not exist...')
-            sys.exit()
+            print(f'[WARNING] {path} does not exist...')
+            self._vcf = path
         return
 
     def sanity_check(self) -> bool:
