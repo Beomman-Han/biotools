@@ -1,5 +1,5 @@
 import sys, io, gzip, os
-from typing import Generator
+from typing import Generator, List
 from FileProcessor import FileProcessor
 
 class VCFProcessor(FileProcessor):
@@ -253,8 +253,68 @@ class VCFProcessor(FileProcessor):
         B_allele = cols[B_allele_idx]
 
         return (len(A_allele) == len(B_allele))
+    
+    def filter_genotype(self,
+        genotypes : List[str]
+        ) -> Generator[str, None, None]:
+        
+        """Bring a variant line not containing input genotypes in 'GT' field.
+        
+        Parameters
+        ----------
+        genotype : List[str]
+            Input genotype list for checking
+        
+        Yields
+        ------
+        Generator[str, None, None]
+            Line not containing input genotype
+        
+        Example
+        -------
+        >>> proc = VCFProcessor(vcf_path)
+        >>> proc.open()
+        >>> for line in proc.get_genotype(['0/0'])
+        ...     print(line)
+        Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65    GT  0/1
+        Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65    GT  1/1
+        Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65    GT  0/1
+        """
 
-    def get_genotype(self, genotype):        
+        if not self.f_obj:
+            ## Open VCF first
+            return
+        
+        if 'FORMAT' not in self.header:
+            ## GT info not in VCF
+            return
+
+        format_idx = self.header.index('FORMAT')
+        line = self.readline()
+        while line != '':
+            cols = line.strip('\n').split('\t')
+            format = cols[format_idx].split(':')
+            try:
+                gt_idx = format.index('GT')
+            except ValueError:
+                ## GT info not in VCF
+                return
+            
+            filt_gt = False
+            for spl_idx in range(format_idx+1, len(self.header)):
+                spl_genotype = cols[spl_idx].split(':')[gt_idx]
+                if spl_genotype in genotypes:
+                    filt_gt = True
+                    break
+                
+            if not filt_gt:
+                yield line
+                
+            line = self.readline()
+        
+        return
+    
+    def get_genotype(self, genotype) -> Generator[str, None, None]:
         """Bring a variant line containing input genotype in 'GT' field.
         
         Parameters
@@ -312,6 +372,8 @@ if __name__ == '__main__':
     vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
     proc = VCFProcessor(vcf)
     proc.open()
-    for line in proc.get_genotype('0/0'):
-        print(line.strip())
+    # for line in proc.get_genotype('0/0'):
+    #     print(line.strip())
     
+    for line in proc.filter_genotype(['.', '0', '0/0']):
+        print(line.strip())
