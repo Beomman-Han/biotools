@@ -1,4 +1,5 @@
 import sys, io, gzip, os
+from typing import Generator
 from FileProcessor import FileProcessor
 
 class VCFProcessor(FileProcessor):
@@ -107,11 +108,11 @@ class VCFProcessor(FileProcessor):
                 mode = 'rb'
             elif mode == 'w':
                 mode = 'wb'
-            f_obj = gzip.open(self.f_vcf_, mode)
+            f_obj = gzip.open(self.vcf, mode)
             self.f_obj = f_obj
             return f_obj
         else:
-            f_obj = open(self.f_vcf_, mode)
+            f_obj = open(self.vcf, mode)
             self.f_obj = f_obj
             return f_obj
 
@@ -147,25 +148,28 @@ class VCFProcessor(FileProcessor):
         """
 
         if self._compressed:
-            if self.vcf == None:
-                self.vcf = self.open(mode='rb')
+            if not self.f_obj:
+                self.f_obj = self.open(mode='rb')
 
-            line = self.vcf.readline().decode()
+            line = self.f_obj.readline().decode()
             if skip_header:
                 while line[:2] == '##':
-                    line = self.vcf.readline().decode()
+                    line = self.f_obj.readline().decode()
         else:
-            if self.vcf == None:
-                self.vcf = self.open(mode='r')
-            line = self.vcf.readline()
+            if not self.f_obj:
+                self.f_obj = self.open(mode='r')
+            line = self.f_obj.readline()
             if skip_header:
                 while line[:2] == '##':
-                    line = self.vcf.readline()
+                    line = self.f_obj.readline()
 
         ## self.header
+        if line == '':
+            return line
+        
         if line[0] == '#':
             self.header = line[1:].strip('\n').split('\t')
-            line = self.vcf.readline().decode() if self._compressed else self.vcf.readline()
+            line = self.f_obj.readline().decode() if self._compressed else self.f_obj.readline()
 
         return line
 
@@ -250,8 +254,64 @@ class VCFProcessor(FileProcessor):
 
         return (len(A_allele) == len(B_allele))
 
+    def get_genotype(self, genotype):        
+        """Bring a variant line containing input genotype in 'GT' field.
+        
+        Parameters
+        ----------
+        genotype : str
+            Input genotype for checking
+        
+        Yields
+        ------
+        Generator[str, None, None]
+            Line containing input genotype
+        
+        Example
+        -------
+        >>> proc = VCFProcessor(vcf_path)
+        >>> proc.open()
+        >>> for line in proc.get_genotype('0/0')
+        ...     print(line)
+        Y	2728456	rs2058276	T	C	32	.	GT=0/0;AC=2;AN=2;DB;DP=182;H2;NS=65
+        """
+        
+        if not self.f_obj:
+            ## Open VCF first
+            return
+        
+        if 'FORMAT' not in self.header:
+            ## GT info not in VCF
+            return
+
+        format_idx = self.header.index('FORMAT')            
+        line = self.readline()
+        while line != '':
+            cols = line.strip('\n').split('\t')
+            format = cols[format_idx].split(':')
+            try:
+                gt_idx = format.index('GT')
+            except ValueError:
+                ## GT info not in VCF
+                return
+            
+            chk_gt = False
+            for spl_idx in range(format_idx+1, len(self.header)):
+                spl_genotype = cols[spl_idx].split(':')[gt_idx]
+                if genotype in spl_genotype:
+                    chk_gt = True
+                    break
+            if chk_gt:
+                yield line
+            line = self.readline()
+        
+        return
 
 if __name__ == '__main__':
-    vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
+    # vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
+    vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
     proc = VCFProcessor(vcf)
+    proc.open()
+    for line in proc.get_genotype('0/0'):
+        print(line.strip())
     
