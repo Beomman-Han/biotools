@@ -370,6 +370,30 @@ class VCFProcessor(FileProcessor):
         
         return
     
+    def is_part_of_genotypes(self, line, genotypes):
+        
+        if 'FORMAT' not in self.header:
+            ## GT info not in VCF
+            return
+
+        format_idx = self.header.index('FORMAT')
+        cols = line.strip('\n').split('\t')
+        format = cols[format_idx].split(':')
+        
+        try:
+            gt_idx = format.index('GT')
+        except ValueError:
+            ## GT info not in VCF
+            return
+        
+        spl_genotypes = set()
+        for spl_idx in range(format_idx+1, len(self.header)):
+            spl_genotype = cols[spl_idx].split(':')[gt_idx]
+            spl_genotypes.add(spl_genotype)
+        if set(genotypes).intersection(spl_genotypes) == spl_genotypes:
+            return True
+        return False
+        
     def _check_header(self, line : str) -> bool:
         """Check whether input line is vcf header line.
         
