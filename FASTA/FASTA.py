@@ -8,7 +8,9 @@ from Seq import Seq
 from FileProcessor import FileProcessor
 
 import re
+import Constant
 #from GunHyeong import sanityCheck
+
 
 class SeqRecord:
     def __init__(
@@ -275,12 +277,12 @@ class FASTAProcessor(FileProcessor):
             [description]
         """
 
-        fastaElement: list = ['A','T','G','C','N','R','Y','S','W','K','M','B','D','H','V']
+    
         #target_seq = next(fasta_seq)
         if verbose: print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
     
         if mode == "r":
-            checkbase = [base in fastaElement for base in target_seq[2].strip()]
+            checkbase = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
             checkbool: bool = all(checkbase)
             true_list = list((filter(lambda x: x, checkbase)))
             if checkbool == False:
