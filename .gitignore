@@ -4,3 +4,4 @@ __pycache__/
 *_fasta
 test*
 *.vcf
+*bak
