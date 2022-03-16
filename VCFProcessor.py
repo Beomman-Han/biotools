@@ -303,10 +303,12 @@ class VCFProcessor(FileProcessor):
             filt_gt = False
             for spl_idx in range(format_idx+1, len(self.header)):
                 spl_genotype = cols[spl_idx].split(':')[gt_idx]
-                if spl_genotype in genotypes:
-                    filt_gt = True
+                for genotype in genotypes:
+                    if genotype in spl_genotype:
+                        filt_gt = True
+                        break
+                if filt_gt:
                     break
-                
             if not filt_gt:
                 yield line
                 
@@ -314,13 +316,16 @@ class VCFProcessor(FileProcessor):
         
         return
     
-    def get_genotype(self, genotype) -> Generator[str, None, None]:
+    def get_genotype(self,
+        genotypes : List[str]
+        ) -> Generator[str, None, None]:
+        
         """Bring a variant line containing input genotype in 'GT' field.
         
         Parameters
         ----------
-        genotype : str
-            Input genotype for checking
+        genotype : List[str]
+            Input genotype list for checking
         
         Yields
         ------
@@ -331,9 +336,9 @@ class VCFProcessor(FileProcessor):
         -------
         >>> proc = VCFProcessor(vcf_path)
         >>> proc.open()
-        >>> for line in proc.get_genotype('0/0')
+        >>> for line in proc.get_genotype(['0/0'])
         ...     print(line)
-        Y	2728456	rs2058276	T	C	32	.	GT=0/0;AC=2;AN=2;DB;DP=182;H2;NS=65
+        Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65    GT  0/0
         """
         
         if not self.f_obj:
@@ -344,7 +349,7 @@ class VCFProcessor(FileProcessor):
             ## GT info not in VCF
             return
 
-        format_idx = self.header.index('FORMAT')            
+        format_idx = self.header.index('FORMAT')
         line = self.readline()
         while line != '':
             cols = line.strip('\n').split('\t')
@@ -358,8 +363,11 @@ class VCFProcessor(FileProcessor):
             chk_gt = False
             for spl_idx in range(format_idx+1, len(self.header)):
                 spl_genotype = cols[spl_idx].split(':')[gt_idx]
-                if genotype in spl_genotype:
-                    chk_gt = True
+                for genotype in genotypes:
+                    if genotype in spl_genotype:
+                        chk_gt = True
+                        break
+                if chk_gt:
                     break
             if chk_gt:
                 yield line
