@@ -257,44 +257,41 @@ class FASTA(File):
                 record_dict[data_id] = record
         return record_dict
 
-    def sanity_check(self, target_seq: tuple, mode: str, verbose: bool = False ) -> bool:
-        """sanity_check [summary]
+    def sanity_check(self,
+        target_seq : Tuple[str],
+        mode : str,
+        verbose : bool = False
+        ) -> bool:
+       
+        """Check whether input sequence info ('target_seq') is normal format.
 
         Parameters
         ----------
+        target_seq : Tuple[str]
+            Sequence info (title, desc, seq)
         mode : str
-            [description]
-            r,e
-            r = respectively
-            e = entire
+            Check mode
         verbose : bool
-            [description]
-            True = Print check message
-            False = Silent mode
+            Print process message
+            (True = Print check message,
+            False = Silent mode)
+            
         Returns
         -------
         bool
-            [description]
-
-        Raises
-        ------
-        Exception
-            [description]
+            Whether target_seq parameter is normal foramt
         """
 
-    
-        #target_seq = next(fasta_seq)
         if verbose: print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
     
         if mode == "r":
-            checkbase = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
-            checkbool: bool = all(checkbase)
-            true_list = list((filter(lambda x: x, checkbase)))
-            if checkbool == False:
-                misbaseList = [ (target_seq[2][i],i+1) for i, b in enumerate(checkbase) if b == False]
-                #print(misbaseList)
-                if verbose: print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
-            if checkbool == False:
+            check_base = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
+            check_bool: bool = all(check_base)
+            true_list = list((filter(lambda x: x, check_base)))
+            if check_bool == False:
+                misbase_list = [ (target_seq[2][i],i+1) for i, b in enumerate(check_base) if b == False]
+                if verbose: print(f'Please enter a valid seq : \n(misbase,seq position. : {misbase_list} \n')
+            if check_bool == False:
                 if verbose: print("Check the seq")
                 return False
             else:
