@@ -1,4 +1,4 @@
-import os, sys, json
+import os, sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from typing import Dict, TextIO, Tuple, Type, Generator
@@ -7,9 +7,8 @@ import io
 from Seq import Seq
 from File import File
 
-import re
+import re, json
 import Constant
-#from GunHyeong import sanityCheck
 
 
 class SeqRecord:
@@ -18,22 +17,25 @@ class SeqRecord:
         seq,
         title: str,
         description: str,
-    ):
-        """_summary_
+        ) -> None:
+        
+        """SeqRecord class for recording sequence info (FASTA)
 
         Parameters
         ----------
         seq : str
-            _description_
+            Sequence information
         title : str
-            _description_
+            Title of sequence (ex. '>title')
         description : str
-            _description_
+            Description of sequence
         """
         
         self.seq = seq
         self.title = title
         self.description = description
+        
+        return
 
 class FASTA(File):
     """Class supports functions that process FASTA format file"""
