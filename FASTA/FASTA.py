@@ -111,17 +111,26 @@ class FASTA(File):
                 sequences.append(line.strip())
         yield title, desc, ''.join(sequences)
     
-    def write(self, title: str, sequence: str, desc: str = None) -> None:
+    def write(self,
+        title : str,
+        sequence : str,
+        desc : str = None
+        ) -> None:
+        
         """Write file by line
 
         Parameters
         ----------
-        line: str
-            A line for writing file
+        title : str
+            Title of sequence
+        seqence : str
+            Sequence string
+        desc : str, optional
+            Description of sequence, by default None
         """
         
         if 'r' in self.open_mode:
-            print('Current Open Obj is "Read" mode')
+            print('Current open_obj is "read" mode')
         
         elif 'w' in self.open_mode:
             fasta_title = f'>{title}'
@@ -129,7 +138,8 @@ class FASTA(File):
             self.open_obj.write(f'{fasta_title}\n')
             for i in range(0, len(sequence), 70):
                 self.open_obj.write(sequence[i:i+70]+'\n')
-        pass
+
+        return
     
     def export_to_json(self, output_name: str, seq_dict: dict = False) -> None:
         """export_json
