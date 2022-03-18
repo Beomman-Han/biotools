@@ -84,22 +84,21 @@ class FASTA(File):
         self.open_obj = False
         return
     
-    def readline(self, handle: TextIO) -> Generator[Tuple[str], None, None]:
+    def readline(self) -> Generator[Tuple[str], None, None]:
         """Generator function parsing fasta format contents
-
-        Parameters
-        ----------
-        handle : TextIO
-            TextIO of fasta file
 
         Yields
         ------
         Tuple[str]
             tuple of contig name, description, sequence
         """
+        
+        if not self.open_obj:
+            print(f'[ERROR] {self.path} is not opened.')
+            return
     
         sequences = []
-        for line in handle:
+        for line in self.open_obj:
             if line.startswith('>'):
                 if len(sequences) != 0:
                     yield(title, desc, ''.join(sequences))
