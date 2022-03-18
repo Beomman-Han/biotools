@@ -41,18 +41,16 @@ class FASTA(File):
     """Class supports functions that process FASTA format file"""
     
     def __init__(self, path: str) -> None:
-        """Initialize FASTAProcessor class
+        """Initialize FASTA class
 
         Parameters
         ----------
         path : str
-            path of .fasta file
+            Absolute path of .fasta file
         """
         
-        self.path = path
+        self.path = os.path.abspath(path)
         self.open_obj = False
-        #sanity_check = sanityCheck.SanityCheck(self.path)
-        #sanity_check.fastaSanityCheck()
         
         return
     
@@ -61,23 +59,25 @@ class FASTA(File):
             print('close File')
             self.close()
     
-    def open(self, file_name, mode: str = "r") -> None:
-        """_summary_
+    def open(self,
+        mode : str = "r"
+        ) -> None:
+        
+        """Open fasta file (self.path) to self.open_obj
 
         Parameters
         ----------
-        file_name : str
-            The name of the file to open.
         mode : str
-            open mode (r, w, ...)
+            Open mode (r, w, ...)
         """
+        
         if self.open_obj:
-            print('Current Open Obj is already open')
+            print('Current open_obj is already opened.')
         else:
             self.open_mode = mode
-            self.open_obj = open(file_name, mode)
+            self.open_obj = open(self.path, mode)
         
-        pass
+        return
     
     def close(self: io.BufferedReader or io.BufferedWriter) -> None:
         """_summary_
