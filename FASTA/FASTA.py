@@ -84,7 +84,7 @@ class FASTA(File):
         self.open_obj = False
         return
     
-    def readline(self) -> Generator[Tuple[str], None, None]:
+    def reader(self) -> Generator[Tuple[str], None, None]:
         """Generator function parsing fasta format contents
 
         Yields
@@ -321,47 +321,6 @@ class FASTA(File):
                 print(f'find title : {fasta[0]}')
     
 if __name__ == "__main__":
-    
-    # fasta_fn = 'FASTA/RGS14_cDNA.fasta'
-    # obj_fasta = FASTA(fasta_fn)
-    
-    # fasta_dic = obj_fasta.to_dict(open(fasta_fn))
-    
-    # first_id = list(fasta_dic.keys())[0]
-    # first_fasta = fasta_dic[first_id]
-    # print(repr(first_fasta.seq))
-    # print(type(first_fasta.seq))
-    
-    #obj_fasta.open("first_fasta",mode='w')
-    #obj_fasta.write(first_id, str(first_fasta.seq))
-    #obj_fasta.close()
 
-    #obj_fasta.open("second_fasta",mode='w')
-    #obj_fasta.write(first_id, str(first_fasta.seq))
-    # 1) obj_fasta.close()
-    # 2) del obj_fasta
-    
-    # seq Iterator
-    #RGS14_cDNA = Fasta()
-    #for i, record in enumerate(RGS14_cDNA.parse(open(fasta_fn)), 1):
-        #if i == 10: break
-        #print(record.title)
-        #print(i, record.title, record.description, '%s...' % record.seq[:10])
-        #print(dir(record))
-     
-    #record = RGS14_cDNA.parse(open(fasta_fn))
-    #data1 = next(record) # 1
-    #print(data1.title, data1.description, data1.seq[:10])
-    #data2 = next(record) # 2
-    #print(data2.title, data2.description, data2.seq[:10])
-    
-    #record_dict = RGS14_cDNA.to_dict(open(fasta_fn))
-    #print(list(record_dict.keys())[0])
-    
-    # print(len(fasta_dic))
-    # obj_fasta.export_to_json("test.json")
-    
-    # json_fa = FASTA('test.json')
-    # test_dic = json_fa.import_from_json()
-    # print(list(test_dic.keys()))
+    fa = FASTA('./test.fa')
     pass

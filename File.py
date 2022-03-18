@@ -48,7 +48,8 @@ class File(ABC):
         pass
 
     @abstractmethod
-    def readline(self, skip_header: bool) -> str:
+    # def readline(self, skip_header: bool) -> str:
+    def reader(self, skip_header: bool) -> str:
         """Read file by line
 
         Parameters
