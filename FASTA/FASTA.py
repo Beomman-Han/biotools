@@ -2,7 +2,6 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from typing import Dict, TextIO, Tuple, Type, Generator
-import io
 
 from Seq import Seq
 from File import File
@@ -79,16 +78,11 @@ class FASTA(File):
         
         return
     
-    def close(self: io.BufferedReader or io.BufferedWriter) -> None:
-        """_summary_
-
-        Parameters
-        ----------
-        opened_file : io.BufferedReaderorio.BufferedWriter
-            _description_
-        """
+    def close(self) -> None:
+        """Close self.open_obj attribute"""
         self.open_obj.close()
         self.open_obj = False
+        return
     
     def readline(self, handle: TextIO) -> Generator[Tuple[str], None, None]:
         """Generator function parsing fasta format contents
