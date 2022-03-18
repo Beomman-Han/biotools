@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import io
 
-class FileProcessor(ABC):
+class File(ABC):
     """Abstract class for child classes which support functions processing file
     containig biological information
     
