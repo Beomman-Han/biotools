@@ -141,15 +141,20 @@ class FASTA(File):
 
         return
     
-    def export_to_json(self, output_name: str, seq_dict: dict = False) -> None:
-        """export_json
+    def export_to_json(self,
+        output_name : str,
+        seq_dict : dict = False
+        ) -> None:
+        
+        """Export fasta contents to json format file.
+        If 'seq_dict' param is False, then export with self.path fasta info.
 
         Parameters
         ----------
         output_name : str
             Output file name
-        seq_dict : dict
-            SeqRecord dictionary
+        seq_dict : dict, optional
+            SeqRecord dictionary, by default False
         """
         
         json_dic = {}
@@ -166,6 +171,7 @@ class FASTA(File):
                                     'description': record.description
                                     }
         json.dump(json_dic, open(output_name, 'w'), indent=4)
+        return
     
     def import_from_json(self, json_file: str = False) -> dict:
         """Data import from json
