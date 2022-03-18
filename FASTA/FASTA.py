@@ -5,7 +5,7 @@ from typing import Dict, TextIO, Tuple, Type, Generator
 import io
 
 from Seq import Seq
-from FileProcessor import FileProcessor
+from File import File
 
 import re
 import Constant
@@ -35,7 +35,7 @@ class SeqRecord:
         self.title = title
         self.description = description
 
-class FASTAProcessor(FileProcessor):
+class FASTA(File):
     """Class supports functions that process FASTA format file"""
     
     def __init__(self, path: str) -> None:
@@ -314,15 +314,15 @@ class FASTAProcessor(FileProcessor):
     
 if __name__ == "__main__":
     
-    fasta_fn = 'FASTA/RGS14_cDNA.fasta'
-    obj_fasta = FASTAProcessor(fasta_fn)
+    # fasta_fn = 'FASTA/RGS14_cDNA.fasta'
+    # obj_fasta = FASTA(fasta_fn)
     
-    fasta_dic = obj_fasta.to_dict(open(fasta_fn))
+    # fasta_dic = obj_fasta.to_dict(open(fasta_fn))
     
-    first_id = list(fasta_dic.keys())[0]
-    first_fasta = fasta_dic[first_id]
-    print(repr(first_fasta.seq))
-    print(type(first_fasta.seq))
+    # first_id = list(fasta_dic.keys())[0]
+    # first_fasta = fasta_dic[first_id]
+    # print(repr(first_fasta.seq))
+    # print(type(first_fasta.seq))
     
     #obj_fasta.open("first_fasta",mode='w')
     #obj_fasta.write(first_id, str(first_fasta.seq))
@@ -350,9 +350,10 @@ if __name__ == "__main__":
     #record_dict = RGS14_cDNA.to_dict(open(fasta_fn))
     #print(list(record_dict.keys())[0])
     
-    print(len(fasta_dic))
-    obj_fasta.export_to_json("test.json")
+    # print(len(fasta_dic))
+    # obj_fasta.export_to_json("test.json")
     
-    json_fa = FASTAProcessor('test.json')
-    test_dic = json_fa.import_from_json()
-    print(list(test_dic.keys()))
+    # json_fa = FASTA('test.json')
+    # test_dic = json_fa.import_from_json()
+    # print(list(test_dic.keys()))
+    pass
