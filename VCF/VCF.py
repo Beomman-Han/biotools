@@ -1,4 +1,6 @@
 import sys, io, gzip, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from typing import Generator, List
 from File import File
 
@@ -71,6 +73,10 @@ class VCF(File):
         return    
 
     def export_to_json(self) -> None:
+        pass
+        return
+    
+    def reader(self) -> None:
         pass
         return
 
@@ -396,7 +402,7 @@ class VCF(File):
     
     def get_header_line(self):
         
-        proc = VCFProcessor(self.vcf)
+        proc = VCF(self.vcf)
         proc.open()
         line = proc.readline(skip_header=False)
         while line != '':
@@ -412,7 +418,7 @@ class VCF(File):
 if __name__ == '__main__':
     # vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
     vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
-    proc = VCFProcessor(vcf)
+    proc = VCF(vcf)
     proc.open()
     # for line in proc.get_genotype('0/0'):
     #     print(line.strip())
