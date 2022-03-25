@@ -20,7 +20,7 @@ class varRecord:
         sample_name_list: List[str] = False,
         ) -> None:
         
-        """_summary_
+        """Init instance for each variant
 
         Parameters
         ----------
@@ -35,17 +35,17 @@ class varRecord:
         alt : str
             _Alternative allele_
         qual : int
-            _Variant Quality_
+            _Variant quality_
         var_filter : str
             _Filter status_
         info : str
-            _Additional information_
+            _Additional info combined across all samples_
         format_header : str, optional
-            _description_, by default False
+            _Header for additional info of each sample, by default False
         format_list : list, optional
-            _description_, by default False
+            _Additional info of each sample_, by default False
         sample_name_list : list, optional
-            _description_, by default False
+            _Sample name list_, by default False
         """
         
         self.chrom = chrom
@@ -59,7 +59,7 @@ class varRecord:
         
         ## optional attributes
         self.format_headers : Dict[str, str] = format_header
-        self.sample_info = self._parse_sample_format(format_list, sample_name_list)
+        self.sample_info : Dict[str, Dict[str, str]] = self._parse_sample_format(format_list, sample_name_list)
 
         return
     
