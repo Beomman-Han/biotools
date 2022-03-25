@@ -6,6 +6,11 @@ from typing import List, Dict
 class varRecord:
     """Store variant information from VCF format file"""
     
+    __slots__ = ('_chrom', '_pos', '_ID',
+                 '_ref', '_alt', '_qual',
+                 '_filter', '_info',
+                 '_format_headers', 'sample_info')
+    
     def __init__(self,
         chrom: str,
         pos: str,
@@ -187,7 +192,14 @@ if __name__ == "__main__":
     
     test_info = test_str.split('\t')
     
-    test_var = varRecord(*test_info[:8], format_header=test_info[8], format_list=test_info[9:], sample_name_list=sample_list)
+    test_var = varRecord(*test_info[:8],
+                        format_header=test_info[8],
+                        format_list=test_info[9:],
+                        sample_name_list=sample_list)
+    
+    print(f'Size of \'varRecord\' instance : {sys.getsizeof(test_var)} bytes')
+    # print(sys.getsizeof(test_var.__dict__))
+    print(sys.getsizeof(test_var.__slots__))
     
     from pprint import pprint
     
