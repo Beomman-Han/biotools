@@ -11,11 +11,10 @@ class File(ABC):
         Implemented (last at 2022/03/13)
     *BAMProcessor
         On going
+    *VCFProcessor
     
     Candidates
     ----------
-    *VCFProcessor
-        (to be implemented)
     *GTFProcessor
         (to be implemented)
     *GFFProcessor
@@ -28,13 +27,11 @@ class File(ABC):
     close()
     readline()
     write()
-    import_from_json()
-    export_to_json()
     """
 
     @abstractmethod
     def sanity_check(self) -> bool:
-        """Open file"""
+        """Check integrity of file"""
         pass
     
     @abstractmethod
@@ -73,26 +70,3 @@ class File(ABC):
             A line for writing file
         """
         pass
-    
-    @abstractmethod
-    def import_from_json(self, json_file: str) -> dict:
-        """import json by dictionary 
-
-        Parameters
-        ----------
-        json_dict : dict
-            Dictionary type
-        """
-        pass
-    
-    @abstractmethod
-    def export_to_json(self, json_dict: dict) -> None:
-        """Write json by dictionary 
-
-        Parameters
-        ----------
-        json_dict : dict
-            Dictionary type
-        """
-        pass
-    
