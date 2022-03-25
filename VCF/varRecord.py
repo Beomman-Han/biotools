@@ -1,9 +1,12 @@
 import os, sys
+from traceback import format_list
+from typing import List, Dict
 
 # VCFv4.3
 class varRecord:
-    def __init__(
-        self,
+    """Store variant information from VCF format file"""
+    
+    def __init__(self,
         chrom: str,
         pos: str,
         ID: str,
@@ -13,9 +16,10 @@ class varRecord:
         var_filter: str,
         info: str,
         format_header: str = False,
-        format_list: list = False,
-        sample_name_list: list = False,
-    ):
+        format_list: List[str] = False,
+        sample_name_list: List[str] = False,
+        ) -> None:
+        
         """_summary_
 
         Parameters
@@ -45,37 +49,170 @@ class varRecord:
         """
         
         self.chrom = chrom
-        try: self.pos = int(pos)
-        except: sys.exit("POS data must be int type")
+        self.pos = pos
         self.ID = ID
-        self.ref = ref; self.alt = alt
-        try: self.qual = int(qual)
-        except: sys.exit("QUAL data must be int type")
+        self.ref = ref
+        self.alt = alt
+        self.qual = qual
         self.filter = var_filter
+        self.info : Dict[str, str] = info
+        # self.format_headers : Dict[str, str] = format_header
+        # self.sample_info : Dict[str, str] = sample_name_list
         
-        self.info = {}
-        if info.endswith(';'): info = info[:-1]
-        for info_data in info.split(';'):
-            try: key, value = info_data.split('=')
-            except: key = info_data[0]; value = ''
-            self.info[key.strip()] = value.strip()
-            
-        if format_header:
-            format_header_dic = {}
-            for i, key in enumerate(format_header.split(':')):
-                format_header_dic[i] = key
+        # if format_header:
+        #     format_header_dic = {}
+        #     for i, key in enumerate(format_header.split(':')):
+        #         format_header_dic[i] = key
         
-        if format_list:
-            self.sample_info = { sample_name: {} for sample_name in sample_name_list }
-            if len(format_list) != len(sample_name_list):
-                sys.exit('The length of "format_list" and the length of "sample_name_list" must be the same.')
+        # if format_list:
+        #     self.sample_info = { sample_name: {} for sample_name in sample_name_list }
+        #     if len(format_list) != len(sample_name_list):
+        #         sys.exit('The length of "format_list" and the length of "sample_name_list" must be the same.')
                 
-            for sample_i, sample_info in enumerate(format_list):
-                sample_name = sample_name_list[sample_i]
-                for i, value in enumerate(sample_info.split(':')):
-                    self.sample_info[sample_name][format_header_dic[i]] = value
-                    
-                    
+        #     for sample_i, sample_info in enumerate(format_list):
+        #         sample_name = sample_name_list[sample_i]
+        #         for i, value in enumerate(sample_info.split(':')):
+        #             self.sample_info[sample_name][format_header_dic[i]] = value
+        return
+    
+    @property
+    def chrom(self) -> str:        
+        return self._chrom
+    
+    @chrom.setter
+    def chrom(self, _chrom : str) -> None:
+        self._chrom = _chrom.strip()
+        return
+    
+    @property
+    def pos(self) -> int:
+        return self._pos
+    
+    @pos.setter
+    def pos(self, _pos : str) -> None:
+        try:
+            self._pos = int(_pos)
+        except ValueError:
+            sys.exit('POS data must be int type')
+        return
+    
+    @property
+    def ID(self) -> str:
+        return self._ID
+    
+    @ID.setter
+    def ID(self, _ID : str) -> None:
+        self._ID = _ID
+        return
+    
+    @property
+    def ref(self) -> str:
+        return self._ref
+    
+    @ref.setter
+    def ref(self, _ref : str) -> None:
+        self._ref = _ref
+        return
+    
+    @property
+    def alt(self) -> str:
+        return self._alt
+    
+    @alt.setter
+    def alt(self, _alt : str) -> None:
+        self._alt = _alt
+        return
+
+    @property
+    def qual(self) -> float:
+        return self._qual
+    
+    @qual.setter
+    def qual(self, _qual : str) -> None:
+        try:
+            self._qual = float(_qual)
+        except ValueError:
+            sys.exit('QUAL data must be float type')
+    
+    @property
+    def filter(self) -> str:
+        return self._filter
+    
+    @filter.setter
+    def filter(self, _filter : str) -> None:
+        self._filter = _filter
+        return
+
+    @property
+    def info(self) -> Dict:
+        return self._info
+    
+    @info.setter
+    def info(self, _info : str) -> None:
+        self._info = {}
+        if _info.endswith(';'):
+            _info = _info[:-1]
+        for info_data in _info.split(';'):
+            try:
+                key, value = info_data.split('=')
+            except ValueError:
+                key = info_data[0]
+                value = ''
+            self._info[key.strip()] = value.strip()
+        return
+
+    # @property
+    # def format_headers(self) -> Dict[str, str]:
+    #     return self._format_headers
+    
+    # @format_headers.setter
+    # def format_headers(self, _format_header : str) -> None:
+    #     if _format_header:
+    #         format_headers = {}
+    #         for i, key in enumerate(_format_header.split(':')):
+    #             format_headers[i] = key
+    #         self._format_headers = format_headers
+    #     else:
+    #         self._format_headers = dict()
+    #     return
+    
+    # @property
+    # def sample_info(self) -> Dict[str, str]:
+    #     return self._sample_info
+    
+    # @sample_info.setter
+    # def sample_info(self, sample_name_list : List[str]) -> None:
+    #     if sample_name_list:
+    #         self._sample_info = {sample_name : {} for sample_name in sample_name_list}
+    #     else:
+    #         self._sample_info = dict()
+    #     return
+    
+    # @property
+    # def format_list(self) -> Dict[str, Dict[str, str]]:
+    #     return self._format_list
+    
+    # """
+    # if format_list:
+    #     self.sample_info = { sample_name: {} for sample_name in sample_name_list }
+    #     if len(format_list) != len(sample_name_list):
+    #         sys.exit('The length of "format_list" and the length of "sample_name_list" must be the same.')
+            
+    #     for sample_i, sample_info in enumerate(format_list):
+    #         sample_name = sample_name_list[sample_i]
+    #         for i, value in enumerate(sample_info.split(':')):
+    #             self.sample_info[sample_name][format_header_dic[i]] = value
+    # """
+
+    # @format_list.setter
+    # def format_list(self, _format_list : List[str]) -> None:
+    #     if _format_list:
+    #         if len(_format_list) != len(self.sample_info.keys()):
+    #             sys.exit('The length of "format_list" and "sample_name_list" must be the same.')
+
+    #         for sample_i, sample_info in enumerate(_format_list):
+    #             sample_name = self.sample_info[]
+        
 if __name__ == "__main__":
     sample_list = ["NA00001", "NA00002"]
     test_str = "20\t14370\trs6054257\tG\tA\t29\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51"
