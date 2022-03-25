@@ -56,23 +56,11 @@ class varRecord:
         self.qual = qual
         self.filter = var_filter
         self.info : Dict[str, str] = info
-        # self.format_headers : Dict[str, str] = format_header
-        # self.sample_info : Dict[str, str] = sample_name_list
         
-        # if format_header:
-        #     format_header_dic = {}
-        #     for i, key in enumerate(format_header.split(':')):
-        #         format_header_dic[i] = key
-        
-        # if format_list:
-        #     self.sample_info = { sample_name: {} for sample_name in sample_name_list }
-        #     if len(format_list) != len(sample_name_list):
-        #         sys.exit('The length of "format_list" and the length of "sample_name_list" must be the same.')
-                
-        #     for sample_i, sample_info in enumerate(format_list):
-        #         sample_name = sample_name_list[sample_i]
-        #         for i, value in enumerate(sample_info.split(':')):
-        #             self.sample_info[sample_name][format_header_dic[i]] = value
+        ## optional attributes
+        self.format_headers : Dict[str, str] = format_header
+        self.sample_info = self._parse_sample_format(format_list, sample_name_list)
+
         return
     
     @property
@@ -161,57 +149,37 @@ class varRecord:
             self._info[key.strip()] = value.strip()
         return
 
-    # @property
-    # def format_headers(self) -> Dict[str, str]:
-    #     return self._format_headers
+    @property
+    def format_headers(self) -> Dict[str, str]:
+        return self._format_headers
     
-    # @format_headers.setter
-    # def format_headers(self, _format_header : str) -> None:
-    #     if _format_header:
-    #         format_headers = {}
-    #         for i, key in enumerate(_format_header.split(':')):
-    #             format_headers[i] = key
-    #         self._format_headers = format_headers
-    #     else:
-    #         self._format_headers = dict()
-    #     return
-    
-    # @property
-    # def sample_info(self) -> Dict[str, str]:
-    #     return self._sample_info
-    
-    # @sample_info.setter
-    # def sample_info(self, sample_name_list : List[str]) -> None:
-    #     if sample_name_list:
-    #         self._sample_info = {sample_name : {} for sample_name in sample_name_list}
-    #     else:
-    #         self._sample_info = dict()
-    #     return
-    
-    # @property
-    # def format_list(self) -> Dict[str, Dict[str, str]]:
-    #     return self._format_list
-    
-    # """
-    # if format_list:
-    #     self.sample_info = { sample_name: {} for sample_name in sample_name_list }
-    #     if len(format_list) != len(sample_name_list):
-    #         sys.exit('The length of "format_list" and the length of "sample_name_list" must be the same.')
+    @format_headers.setter
+    def format_headers(self, _format_header : str) -> None:
+        if _format_header:
+            format_headers = {}
+            for i, key in enumerate(_format_header.split(':')):
+                format_headers[i] = key
+            self._format_headers = format_headers
+        else:
+            self._format_headers = dict()
+        return
+
+    def _parse_sample_format(self,
+        sample_formats : List[str] = False,
+        sample_names : List[str] = False
+        ) -> Dict[str, Dict[str, str]]:
+        
+        if sample_formats:
+            sample_info = { sample_name : {} for sample_name in sample_names }
+            if len(sample_formats) != len(sample_names):
+                sys.exit('The number of FORMAT columns and the number of samples must be the same.')
             
-    #     for sample_i, sample_info in enumerate(format_list):
-    #         sample_name = sample_name_list[sample_i]
-    #         for i, value in enumerate(sample_info.split(':')):
-    #             self.sample_info[sample_name][format_header_dic[i]] = value
-    # """
+            for sample_i, sample_format in enumerate(sample_formats):
+                sample_name = sample_names[sample_i]
+                for i, value in enumerate(sample_format.split(':')):
+                    sample_info[sample_name][self.format_headers[i]] = value
+        return sample_info
 
-    # @format_list.setter
-    # def format_list(self, _format_list : List[str]) -> None:
-    #     if _format_list:
-    #         if len(_format_list) != len(self.sample_info.keys()):
-    #             sys.exit('The length of "format_list" and "sample_name_list" must be the same.')
-
-    #         for sample_i, sample_info in enumerate(_format_list):
-    #             sample_name = self.sample_info[]
         
 if __name__ == "__main__":
     sample_list = ["NA00001", "NA00002"]
