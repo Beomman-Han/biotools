@@ -134,29 +134,20 @@ class VCF(File):
         return
 
     def close(self) -> None:
-        """Close self.vcf
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-        """
-
+        """Close self.vcf"""
+        
         self.f_obj.close()
         self.f_obj = False
         
         return
 
     def readline(self, skip_header=True) -> str:
-        """Read vcf file by line (~= io.BufferedReader.readline())
+        """Read vcf file by one line (~= TextIOWrapper.readline())
 
         Parameters
         ----------
-        skip_header: bool (default: True)
-            whether skipping header line which starts '#'
+        skip_header : bool, optional
+            Boolean val whether skip header line which starts with '#', by default True
 
         Returns
         -------
@@ -164,27 +155,24 @@ class VCF(File):
             A line from vcf
         """
 
-        if self._compressed:
-            if not self.f_obj:
-                self.f_obj = self.open(mode='rb')
+        if not self.f_obj:
+            self.open(mode='r')
 
+        if self._compressed:
             line = self.f_obj.readline().decode()
             if skip_header:
                 while line[:2] == '##':
                     line = self.f_obj.readline().decode()
         else:
-            if not self.f_obj:
-                self.f_obj = self.open(mode='r')
             line = self.f_obj.readline()
             if skip_header:
                 while line[:2] == '##':
                     line = self.f_obj.readline()
 
-        ## self.header
         if line == '':
             return line
         
-        if line[0] == '#':
+        if line[0] == '#' and line[:2] != '##':
             self.header = line[1:].strip('\n').split('\t')
             if skip_header:
                 line = self.f_obj.readline().decode() if self._compressed else self.f_obj.readline()
@@ -421,13 +409,23 @@ if __name__ == '__main__':
     vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
     proc = VCF(vcf)
     proc.open()
+    
     # for line in proc.get_genotype('0/0'):
     #     print(line.strip())
     
     # for line in proc.filter_genotype(['.', '0', '0/0']):
     #     print(line.strip())
     
-    for line in proc.get_header_line():
-        print(line.strip())
-        
-    print(proc.f_obj.mode)
+    # for line in proc.get_header_line():
+    #     print(line.strip())
+    
+    ## test 'readline' method
+    print(proc.readline())
+    print(proc.readline())
+    print(proc.readline())
+    
+    proc.open()
+    print(proc.readline(skip_header=False))
+    print(proc.readline(skip_header=False))
+    print(proc.readline(skip_header=False))
+    # print(proc.f_obj.mode)
