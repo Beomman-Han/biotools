@@ -1,35 +1,18 @@
-from re import S
 import sys, io, gzip, os
 from typing import Generator, List
-from FileProcessor import FileProcessor
+from File import File
 
-class VCFProcessor(FileProcessor):
-    """Class for processing VCF file
+class VCF(File):
+    """Class supports various functions for processing VCF file
     It provides general VCF process methods.
 
-    Member variables
-    ----------------
-    self.header: list
-    > last header of vcf
-    self.f_vcf_: str
-    > vcf path for processing
-    self.compressed: bool
-    > is vcf compressed (vcf.gz)
-    self.vcf: io.BufferedReader
-    > opened file object of self.f_vcf_
-
+    Attributes
+    ----------
+    To be written...
+    
     Methods
     -------
-    self.chk_compressed()
-    self.open()
-    self.close()
-    self.readline()
-    self.extract_dnv()
-    self.extract_snv()
-    self.reader() (depricated)
-    self.read_vcf() (depricated)
-    self.read_skipping_header() (depricated)
-    self.X_extract_dnv_tmp() (depricated)
+    To be written...
     """
 
     def __init__(self, vcf_: str) -> None:
@@ -39,14 +22,11 @@ class VCFProcessor(FileProcessor):
 
         Parameters
         ----------
-        vcf_: str
-        > path of vcf for processing
-
-        Returns
-        -------
-        None
+        vcf_ : str
+            Absolute path of vcf for processing
         """
 
+        ## default header
         self.header = ['CHROM', 'POS', 'ID', 'REF', 'ALT',\
                     'QUAL', 'FILTER', 'INFO', 'FORMAT',\
                     'SAMPLE']
@@ -73,6 +53,10 @@ class VCFProcessor(FileProcessor):
         """Check whether self.vcf file has weird format.
         
         > All variant lines have the same # of columns
+        > Load ## header lines and check it's ID and Number... etc. is normally matched.
+        > Whether REF == ALT allele
+        > Check DP == 0
+        > Whether chromosome naming is uniform ('chr1' or '1' / 'chrY' or 'chr23' / 'chrM' or 'chrM')
         
         Returns
         -------

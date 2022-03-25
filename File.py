@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import io
 
-class FileProcessor(ABC):
+class File(ABC):
     """Abstract class for child classes which support functions processing file
     containig biological information
     
@@ -48,7 +48,8 @@ class FileProcessor(ABC):
         pass
 
     @abstractmethod
-    def readline(self, skip_header: bool) -> str:
+    # def readline(self, skip_header: bool) -> str:
+    def reader(self, skip_header: bool) -> str:
         """Read file by line
 
         Parameters

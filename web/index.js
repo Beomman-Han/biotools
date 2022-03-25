@@ -5,6 +5,7 @@ const submit_btn = document.querySelector(".content #submit");
 function submit() {
     const input = document.querySelector(".content textarea");
     console.log(input.value);
+    // run python script to get RC sequence and get
 }
 // Add event handler
 submit_btn.addEventListener('click', submit);

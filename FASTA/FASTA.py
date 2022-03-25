@@ -1,15 +1,13 @@
-import os, sys, json
+import os, sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from typing import Dict, TextIO, Tuple, Type, Generator
-import io
 
 from Seq import Seq
-from FileProcessor import FileProcessor
+from File import File
 
-import re
+import re, json
 import Constant
-#from GunHyeong import sanityCheck
 
 
 class SeqRecord:
@@ -18,39 +16,40 @@ class SeqRecord:
         seq,
         title: str,
         description: str,
-    ):
-        """_summary_
+        ) -> None:
+        
+        """SeqRecord class for recording sequence info (FASTA)
 
         Parameters
         ----------
         seq : str
-            _description_
+            Sequence information
         title : str
-            _description_
+            Title of sequence (ex. '>title')
         description : str
-            _description_
+            Description of sequence
         """
         
         self.seq = seq
         self.title = title
         self.description = description
+        
+        return
 
-class FASTAProcessor(FileProcessor):
+class FASTA(File):
     """Class supports functions that process FASTA format file"""
     
     def __init__(self, path: str) -> None:
-        """Initialize FASTAProcessor class
+        """Initialize FASTA class
 
         Parameters
         ----------
         path : str
-            path of .fasta file
+            Absolute path of .fasta file
         """
         
-        self.path = path
+        self.path = os.path.abspath(path)
         self.open_obj = False
-        #sanity_check = sanityCheck.SanityCheck(self.path)
-        #sanity_check.fastaSanityCheck()
         
         return
     
@@ -59,51 +58,47 @@ class FASTAProcessor(FileProcessor):
             print('close File')
             self.close()
     
-    def open(self, file_name, mode: str = "r") -> None:
-        """_summary_
+    def open(self,
+        mode : str = "r"
+        ) -> None:
+        
+        """Open fasta file (self.path) to self.open_obj
 
         Parameters
         ----------
-        file_name : str
-            The name of the file to open.
         mode : str
-            open mode (r, w, ...)
+            Open mode (r, w, ...)
         """
+        
         if self.open_obj:
-            print('Current Open Obj is already open')
+            print('Current open_obj is already opened.')
         else:
             self.open_mode = mode
-            self.open_obj = open(file_name, mode)
+            self.open_obj = open(self.path, mode)
         
-        pass
+        return
     
-    def close(self: io.BufferedReader or io.BufferedWriter) -> None:
-        """_summary_
-
-        Parameters
-        ----------
-        opened_file : io.BufferedReaderorio.BufferedWriter
-            _description_
-        """
+    def close(self) -> None:
+        """Close self.open_obj attribute"""
         self.open_obj.close()
         self.open_obj = False
+        return
     
-    def readline(self, handle: TextIO) -> Generator[Tuple[str], None, None]:
+    def reader(self) -> Generator[Tuple[str], None, None]:
         """Generator function parsing fasta format contents
-
-        Parameters
-        ----------
-        handle : TextIO
-            TextIO of fasta file
 
         Yields
         ------
         Tuple[str]
             tuple of contig name, description, sequence
         """
+        
+        if not self.open_obj:
+            print(f'[ERROR] {self.path} is not opened.')
+            return
     
         sequences = []
-        for line in handle:
+        for line in self.open_obj:
             if line.startswith('>'):
                 if len(sequences) != 0:
                     yield(title, desc, ''.join(sequences))
@@ -116,17 +111,26 @@ class FASTAProcessor(FileProcessor):
                 sequences.append(line.strip())
         yield title, desc, ''.join(sequences)
     
-    def write(self, title: str, sequence: str, desc: str = None) -> None:
+    def write(self,
+        title : str,
+        sequence : str,
+        desc : str = None
+        ) -> None:
+        
         """Write file by line
 
         Parameters
         ----------
-        line: str
-            A line for writing file
+        title : str
+            Title of sequence
+        seqence : str
+            Sequence string
+        desc : str, optional
+            Description of sequence, by default None
         """
         
         if 'r' in self.open_mode:
-            print('Current Open Obj is "Read" mode')
+            print('Current open_obj is "read" mode')
         
         elif 'w' in self.open_mode:
             fasta_title = f'>{title}'
@@ -134,17 +138,23 @@ class FASTAProcessor(FileProcessor):
             self.open_obj.write(f'{fasta_title}\n')
             for i in range(0, len(sequence), 70):
                 self.open_obj.write(sequence[i:i+70]+'\n')
-        pass
+
+        return
     
-    def export_to_json(self, output_name: str, seq_dict: dict = False) -> None:
-        """export_json
+    def export_to_json(self,
+        output_name : str,
+        seq_dict : dict = False
+        ) -> None:
+        
+        """Export fasta contents to json format file.
+        If 'seq_dict' param is False, then export with self.path fasta info.
 
         Parameters
         ----------
         output_name : str
             Output file name
-        seq_dict : dict
-            SeqRecord dictionary
+        seq_dict : dict, optional
+            SeqRecord dictionary, by default False
         """
         
         json_dic = {}
@@ -161,6 +171,7 @@ class FASTAProcessor(FileProcessor):
                                     'description': record.description
                                     }
         json.dump(json_dic, open(output_name, 'w'), indent=4)
+        return
     
     def import_from_json(self, json_file: str = False) -> dict:
         """Data import from json
@@ -252,44 +263,41 @@ class FASTAProcessor(FileProcessor):
                 record_dict[data_id] = record
         return record_dict
 
-    def sanity_check(self, target_seq: tuple, mode: str, verbose: bool = False ) -> bool:
-        """sanity_check [summary]
+    def sanity_check(self,
+        target_seq : Tuple[str],
+        mode : str,
+        verbose : bool = False
+        ) -> bool:
+       
+        """Check whether input sequence info ('target_seq') is normal format.
 
         Parameters
         ----------
+        target_seq : Tuple[str]
+            Sequence info (title, desc, seq)
         mode : str
-            [description]
-            r,e
-            r = respectively
-            e = entire
+            Check mode
         verbose : bool
-            [description]
-            True = Print check message
-            False = Silent mode
+            Print process message
+            (True = Print check message,
+            False = Silent mode)
+            
         Returns
         -------
         bool
-            [description]
-
-        Raises
-        ------
-        Exception
-            [description]
+            Whether target_seq parameter is normal foramt
         """
 
-    
-        #target_seq = next(fasta_seq)
         if verbose: print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
     
         if mode == "r":
-            checkbase = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
-            checkbool: bool = all(checkbase)
-            true_list = list((filter(lambda x: x, checkbase)))
-            if checkbool == False:
-                misbaseList = [ (target_seq[2][i],i+1) for i, b in enumerate(checkbase) if b == False]
-                #print(misbaseList)
-                if verbose: print(f'Please enter a valid seq : \n(misbase,seq position. : {misbaseList} \n')
-            if checkbool == False:
+            check_base = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
+            check_bool: bool = all(check_base)
+            true_list = list((filter(lambda x: x, check_base)))
+            if check_bool == False:
+                misbase_list = [ (target_seq[2][i],i+1) for i, b in enumerate(check_base) if b == False]
+                if verbose: print(f'Please enter a valid seq : \n(misbase,seq position. : {misbase_list} \n')
+            if check_bool == False:
                 if verbose: print("Check the seq")
                 return False
             else:
@@ -313,46 +321,6 @@ class FASTAProcessor(FileProcessor):
                 print(f'find title : {fasta[0]}')
     
 if __name__ == "__main__":
-    
-    fasta_fn = 'FASTA/RGS14_cDNA.fasta'
-    obj_fasta = FASTAProcessor(fasta_fn)
-    
-    fasta_dic = obj_fasta.to_dict(open(fasta_fn))
-    
-    first_id = list(fasta_dic.keys())[0]
-    first_fasta = fasta_dic[first_id]
-    print(repr(first_fasta.seq))
-    print(type(first_fasta.seq))
-    
-    #obj_fasta.open("first_fasta",mode='w')
-    #obj_fasta.write(first_id, str(first_fasta.seq))
-    #obj_fasta.close()
 
-    #obj_fasta.open("second_fasta",mode='w')
-    #obj_fasta.write(first_id, str(first_fasta.seq))
-    # 1) obj_fasta.close()
-    # 2) del obj_fasta
-    
-    # seq Iterator
-    #RGS14_cDNA = Fasta()
-    #for i, record in enumerate(RGS14_cDNA.parse(open(fasta_fn)), 1):
-        #if i == 10: break
-        #print(record.title)
-        #print(i, record.title, record.description, '%s...' % record.seq[:10])
-        #print(dir(record))
-     
-    #record = RGS14_cDNA.parse(open(fasta_fn))
-    #data1 = next(record) # 1
-    #print(data1.title, data1.description, data1.seq[:10])
-    #data2 = next(record) # 2
-    #print(data2.title, data2.description, data2.seq[:10])
-    
-    #record_dict = RGS14_cDNA.to_dict(open(fasta_fn))
-    #print(list(record_dict.keys())[0])
-    
-    print(len(fasta_dic))
-    obj_fasta.export_to_json("test.json")
-    
-    json_fa = FASTAProcessor('test.json')
-    test_dic = json_fa.import_from_json()
-    print(list(test_dic.keys()))
+    fa = FASTA('./test.fa')
+    pass
