@@ -179,22 +179,55 @@ class VCF(File):
 
         return line
 
-    def write(self, line: str):
-        """Write vcf file by line (~= io.BufferedWriter.write())
+    def write(self, line : str) -> None:
+        """Write an input line at self.vcf file.
+        This method check input line whether it contains
+        proper columns for vcf format comparing to 'self.header'.
+        
+        Examples
+        --------
+        >>> vp = VCF('test.vcf')
+        ...
+        >>> vp.header
+        ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', 'SAMPLE']
+        >>> line = 'Line with improper format'
+        >>> vp.write(line)  ## do not write improper format line
+        >>> 
+        >>> line = '##Line with proper format'
+        >>> vp.write(line)  ## recognize as header line
+        >>> line = 'chr1\t10000\t.\tA\tT\t32\t.\tAC=2;AN=2\tGT:GQ\t1/1:12\n'
+        >>> vp.write(line)  ## write one line containing variant info
+        >>> vp.close()
+        $ cat test.vcf
+        ##Line with proper format
+        chr1\t10000\t.\tA\tT\t32\t.\tAC=2;AN=2\tGT:GQ\t1/1:12\n
+        $
 
         Parameters
         ----------
-        line: str
+        line : str
             A line for writing vcf file
         """
 
+        ## check input line if it has proper format
+        if line[:2] != '##':
+            if line[0] == '#':
+                self.header = line[1:].strip('\n').split('\t')
+            else:
+                cols = line.strip('\n').split('\t')
+                if len(cols) != len(self.header):
+                    print('Skip improper formatted line')
+                    return
+        
+        if not self.f_obj:
+            self.open(mode='w')
+
+        if line[-1] != '\n':
+            line += '\n'
+        
         if self._compressed:
-            if not self.f_obj:
-                self.f_obj = self.open(mode='wb')
             self.f_obj.write(line.encode())
         else:
-            if not self.f_obj:
-                self.f_obj = self.open(mode='w')
             self.f_obj.write(line)
 
         return
@@ -406,9 +439,9 @@ class VCF(File):
 
 if __name__ == '__main__':
     # vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
-    vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
-    proc = VCF(vcf)
-    proc.open()
+    # vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
+    # proc = VCF(vcf)
+    # proc.open()
     
     # for line in proc.get_genotype('0/0'):
     #     print(line.strip())
@@ -420,12 +453,21 @@ if __name__ == '__main__':
     #     print(line.strip())
     
     ## test 'readline' method
-    print(proc.readline())
-    print(proc.readline())
-    print(proc.readline())
+    # print(proc.readline())
+    # print(proc.readline())
+    # print(proc.readline())
     
-    proc.open()
-    print(proc.readline(skip_header=False))
-    print(proc.readline(skip_header=False))
-    print(proc.readline(skip_header=False))
+    # proc.open()
+    # print(proc.readline(skip_header=False))
+    # print(proc.readline(skip_header=False))
+    # print(proc.readline(skip_header=False))
     # print(proc.f_obj.mode)
+    
+    ## test 'write' method
+    vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf.gz'
+    proc = VCF(vcf)
+    proc.open(mode='w')
+    proc.write('##Test vcf file')
+    proc.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tTEST')
+    proc.write('chrM\t73\t.\tA\tG\t1551\tPASS\tSNVHPOL=3;MQ=60\tGT:GQ:GQX:DP:DPF:AD:ADF:ADR:SB:FT:PL\t1/1:12:9:5:0:0,5:0,5:0,0:0.0:PASS:111,15,0\n')
+    proc.close()
