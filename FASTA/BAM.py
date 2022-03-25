@@ -1,9 +1,9 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))  ## FIXME
-from FileProcessor import FileProcessor
+from File import File
 
 
-class BAMProcessor(FileProcessor):
+class BAMProcessor(File):
     """Class for supporting functions processing BAM format file
 
     Parameters
