@@ -29,8 +29,8 @@ class VCF(File):
         """
 
         ## default header
-        self.header = ['CHROM', 'POS', 'ID', 'REF', 'ALT',\
-                    'QUAL', 'FILTER', 'INFO', 'FORMAT',\
+        self.header = ['CHROM', 'POS', 'ID', 'REF', 'ALT',
+                    'QUAL', 'FILTER', 'INFO', 'FORMAT',
                     'SAMPLE']
         self.vcf = vcf_
         self._compressed = self._chk_compressed(self.vcf)
@@ -44,12 +44,35 @@ class VCF(File):
 
     @vcf.setter
     def vcf(self, path: str) -> None:
+        ## check existence
         if os.path.isfile(path):
             self._vcf = path
         else:
             print(f'[WARNING] {path} does not exist...')
             self._vcf = path
         return
+
+    def _chk_compressed(self, vcf_: str) -> bool:
+        """Check whether vcf is compressed (by extension)
+
+        Parameters
+        ----------
+        vcf_ : str
+            Path of input vcf
+
+        Returns
+        -------
+        bool
+            True if compressed, else False
+        """
+
+        extension = vcf_.split('.')[-1]
+        if extension == 'vcf':
+            return False
+        elif extension == 'gz':
+            return True
+        else:
+            raise Exception('Check file extension (only .vcf | .vcf.gz)')
 
     def sanity_check(self) -> bool:
         """Check whether self.vcf file has weird format.
@@ -184,31 +207,6 @@ class VCF(File):
             self.f_obj.write(line)
 
         return
-
-    def _chk_compressed(self, vcf_: str) -> bool:
-        """Check whether vcf is compressed (by extension)
-
-        Parameters
-        ----------
-        vcf_: str
-        > input vcf
-
-        Returns
-        -------
-        bool
-        > is compressed
-        """
-
-        extension = vcf_.split('.')[-1]
-        if extension == 'gz':
-            return True
-        elif extension == 'vcf':
-            return False
-        else:
-            print(f'> {self.__class__.__name__} chk_vcf_type()')
-            #print(f'> {sys._getframe.f_code.co_name}')
-            print('> Only .vcf or .vcf.gz')
-            sys.exit()
 
     def is_indel(self, line: str) -> bool:
         """Return whether a variant(line) is indel or not"""
