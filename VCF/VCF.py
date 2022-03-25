@@ -1,8 +1,10 @@
-import sys, io, gzip, os
+import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-from typing import Generator, List
+from typing import Generator, List, Literal, Type
+
 from File import File
+import gzip
 
 class VCF(File):
     """Class supports various functions for processing VCF file
@@ -35,6 +37,7 @@ class VCF(File):
         self.vcf = vcf_
         self._compressed = self._chk_compressed(self.vcf)
         self.f_obj = False
+        self.mode = False
 
         return
 
@@ -103,32 +106,32 @@ class VCF(File):
         pass
         return
 
-    def open(self, mode='r') -> io.BufferedReader or io.BufferedWriter:
-        """Open self.vcf file (vcf or vcf.gz)
+    def open(self,
+        mode : Literal['r', 'w'] = 'r'
+        ) -> None:
+        
+        """Open self.vcf (.vcf or .vcf.gz path) and
+        save TextIOWrapper instance by attribute (self.f_obj).
 
         Parameters
         ----------
         mode: str (default: 'r')
             'r': read, 'w': write
-
-        Returns
-        -------
-        io.BufferedReader
-            io object for reading vcf file
         """
+        
+        if mode not in {'r', 'w'}:
+            raise Exception('Only \'r\' and \'w\' mode supports')
 
+        ## .vcf.gz case
         if self._compressed:
-            if mode == 'r':
-                mode = 'rb'
-            elif mode == 'w':
-                mode = 'wb'
+            mode = 'rb' if mode == 'r' else 'wb'
             f_obj = gzip.open(self.vcf, mode)
-            self.f_obj = f_obj
-            return f_obj
+            self.mode = mode
         else:
             f_obj = open(self.vcf, mode)
-            self.f_obj = f_obj
-            return f_obj
+            self.mode = mode
+        self.f_obj = f_obj
+        return
 
     def close(self) -> None:
         """Close self.vcf
@@ -426,3 +429,5 @@ if __name__ == '__main__':
     
     for line in proc.get_header_line():
         print(line.strip())
+        
+    print(proc.f_obj.mode)
