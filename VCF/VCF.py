@@ -47,6 +47,28 @@ class metaFORMAT:
         return
 
 
+class metaINFO:
+    """Class contains 'INFO' field meta information
+    
+    Example
+    -------
+    ##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate...">
+    """
+
+    def __init__(self,
+        id : str,
+        number : str,
+        type : str,
+        desc : str):
+        
+        self.id = id
+        self.number = number
+        self.type = type
+        self.desc = desc
+        
+        return
+
+
 class VCF(File):
     """Class supports various functions for processing VCF file
     It provides general VCF process methods.
