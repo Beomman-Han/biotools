@@ -1,7 +1,7 @@
 import sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-from typing import Generator, List, Literal, Type
+from typing import Dict, Generator, List, Literal, Type
 
 from File import File
 import gzip
@@ -190,12 +190,20 @@ class VCF(File):
         pass
         return
     
-    def parse_header_lines(self):
-        ...
-        """Parse header lines starting with '##' to save meta info of VCF file"""
+    def parse_meta_info_lines(self) -> Dict[str, List]:
+        """Parse meta information lines starting with '##' to save meta info of VCF file.
+        Meta information lines must be key=value pairs. Please refer to official VCF format
+        document.
+        
+        Returns
+        -------
+        Dict[str, List]
+            Dictionary containing meta information
+        """
         
         meta_info = dict()
         
+        ## init new VCF instance
         vcf = VCF(self.vcf)
         vcf.open()
         line = vcf.readline(skip_header=False)
@@ -203,16 +211,55 @@ class VCF(File):
             if line[:2] != '##':
                 break
             
+            ## '##FILTER=<...>' -> 'FILTER'
             field = line[2:].strip().split('=')[0]
             if field not in meta_info.keys():
-                meta_info[field] = dict()
+                # meta_info[field] = set()
+                meta_info[field] = []
             
-            contents: List[str] = line[2:].strip().split('=')[1]
-            contents = contents[1:-1].split(',')
-            
+            ## '##FILTER=<ID=..,Description="..">' -> '<ID=..,Description="..">'
+            contents: str = '='.join(line[2:].strip().split('=')[1:])
+            if contents[0] == '<':
+                ## '<ID=..,Description=".."">' -> ['ID=..', 'Description=".."']
+                temp = contents[1:-1].split(',')
+                
+                ## 'Description' can have ','
+                ## Ex) Description="dbSNP membership, build 129"
+                contents_list = []
+                for content in temp:
+                    if '=' in content:
+                        contents_list.append(content)
+                    else:
+                        contents_list[-1] += f',{content}'
+
+                temp = dict()
+                for content in contents_list:
+                    # print(content)
+                    key = content.split('=')[0]
+                    value = content.split('=')[1]
+                    ## {'ID':'..', 'Description':'..'}
+                    temp[key] = value
+                
+                ## '##FILTER=<ID=..,Description=..>'
+                ## -> {'FILTER': [metaFILTER, ...]}
+                if field == 'FILTER':
+                    meta_info[field].append(metaFILTER(temp['ID'], temp['Description']))
+                elif field == 'FORMAT':
+                    meta_info[field].append(metaFORMAT(temp['ID'], temp['Number'],\
+                                            temp['Type'], temp['Description']))
+                elif field == 'INFO':
+                    meta_info[field].append(metaINFO(temp['ID'], temp['Number'],\
+                                            temp['Type'], temp['Description']))
+                else:
+                    ## '##GATKCommandLine=<ID=..,CommandLine=..>'
+                    ## -> {'GATKCommandLine': [{'ID':'..', 'CommandLine':'..'}]}
+                    meta_info[field].append(temp)
+            else:
+                ## '##VCFformat=4.2v' -> {'VCFformat':['4.2v']}
+                meta_info[field].append(contents)
             line = vcf.readline(skip_header=False)
         
-        return        
+        return meta_info
     
     def reader(self) -> None:
         pass
@@ -493,10 +540,16 @@ if __name__ == '__main__':
     # print(proc.f_obj.mode)
     
     ## test 'write' method
-    vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf.gz'
-    proc = VCF(vcf)
-    proc.open(mode='w')
-    proc.write('##Test vcf file')
-    proc.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tTEST')
-    proc.write('chrM\t73\t.\tA\tG\t1551\tPASS\tSNVHPOL=3;MQ=60\tGT:GQ:GQX:DP:DPF:AD:ADF:ADR:SB:FT:PL\t1/1:12:9:5:0:0,5:0,5:0,0:0.0:PASS:111,15,0\n')
-    proc.close()
+    # path = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf.gz'
+    # proc = VCF(vcf)
+    # proc.open(mode='w')
+    # proc.write('##Test vcf file')
+    # proc.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tTEST')
+    # proc.write('chrM\t73\t.\tA\tG\t1551\tPASS\tSNVHPOL=3;MQ=60\tGT:GQ:GQX:DP:DPF:AD:ADF:ADR:SB:FT:PL\t1/1:12:9:5:0:0,5:0,5:0,0:0.0:PASS:111,15,0\n')
+    # proc.close()
+    
+    ## test 'parse_header_lines' method
+    path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
+    vcf = VCF(path)
+    meta_info = vcf.parse_meta_info_lines()
+    print(meta_info)
