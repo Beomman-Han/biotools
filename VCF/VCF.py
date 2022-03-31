@@ -12,7 +12,7 @@ class metaFILTER:
     
     Example
     -------
-    ##FILTER=<ID=paSS,Description="All filters passed">
+    ##FILTER=<ID=PASS,Description="All filters passed">
     """
     
     def __init__(self,
@@ -28,10 +28,14 @@ class metaFILTER:
 class metaFORMAT:
     """Class contains 'FORMAT' field meta information
     
+    Possible Types of FORMAT : Integer, Float, Character, String
+    
     Example
     -------
     ##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic ..">
     """
+    
+    TYPES = {'Integer', 'Float', 'Character', 'String'}
     
     def __init__(self,
         id : str,
@@ -44,16 +48,33 @@ class metaFORMAT:
         self.type = type
         self.desc = desc
 
+        return
+    
+    @property
+    def type(self) -> str:
+        return self._type
+    
+    @type.setter
+    def type(self, _type: str):
+        if _type not in self.TYPES:
+            print(f'[Warning] FORMAT field should have 4 types ({self.TYPES})')
+            print(f'This line contains {_type}')
+        self._type = _type
         return
 
 
 class metaINFO:
     """Class contains 'INFO' field meta information
     
+    Possible Types of INFO : Integer, Float, Flag, Character, String
+    
     Example
     -------
     ##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate...">
     """
+
+    TYPES = {'Integer', 'Float', 'Flag', 'Character', 'String'}
+
 
     def __init__(self,
         id : str,
@@ -67,7 +88,19 @@ class metaINFO:
         self.desc = desc
         
         return
-
+    
+    @property
+    def type(self) -> str:
+        return self._type
+    
+    @type.setter
+    def type(self, _type: str):
+        if _type not in self.TYPES:
+            print(f'[Warning] INFO field should have 5 types ({self.TYPES})')
+            print(f'This line contains {_type}')
+        self._type = _type
+        return
+    
 
 class VCF(File):
     """Class supports various functions for processing VCF file
