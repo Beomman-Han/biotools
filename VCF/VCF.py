@@ -23,6 +23,9 @@ class metaFILTER:
         self.desc = desc
         
         return
+    
+    def __str__(self) -> str:
+        return f'<ID={self.id},Description={self.desc}>'
 
 
 class metaFORMAT:
@@ -62,6 +65,9 @@ class metaFORMAT:
         self._type = _type
         return
 
+    def __str__(self) -> str:
+        return f'<ID={self.id},Number={self.number},Type={self.type},Description={self.desc}>'
+
 
 class metaINFO:
     """Class contains 'INFO' field meta information
@@ -100,6 +106,9 @@ class metaINFO:
             print(f'This line contains {_type}')
         self._type = _type
         return
+    
+    def __str__(self) -> str:
+        return f'<ID={self.id},Number={self.number},Type={self.type},Description={self.desc}>'
     
 
 class VCF(File):
@@ -552,4 +561,6 @@ if __name__ == '__main__':
     path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
     vcf = VCF(path)
     meta_info = vcf.parse_meta_info_lines()
-    print(meta_info)
+    # print(meta_info)
+    for key in meta_info.keys():
+        print(f'{key}:{[str(e) for e in meta_info[key]]}')
