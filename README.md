@@ -9,7 +9,6 @@ Project for supporting various functions relating bioinformatics. Currently, the
 <br/>
 
 ## Pre-requisite
-- - -
 Codes in mg-bio are tested with Python >= 3.9.6 and contains below python modules.
 
 - re, json, gzip
@@ -23,7 +22,6 @@ $ pip install re, json, gzip
 <br/>
 
 ## Install
-- - -
 Please download codes from git repository.
 ```sh
 $ git clone https://github.com/Beomman-Han/mg-bio.git
@@ -39,7 +37,6 @@ sys.path.append(mg_bio_path)
 <br/>
 
 ## Example
-- - -
 
 ### FASTA
 
@@ -79,7 +76,6 @@ print(vcf.readline())
 <br/>
 
 ## Style Guide
-- - -
 
 ### Naming Convention
 
