@@ -6,6 +6,25 @@ from typing import Generator, List, Literal, Type
 from File import File
 import gzip
 
+
+class metaFILTER:
+    """Class contains 'FILTER' field meta information
+    
+    Example
+    -------
+    ## FILTER=<ID=paSS,Description="All filters passed">
+    """
+    
+    def __init__(self,
+        id : str,
+        desc : str):
+        
+        self.id = id
+        self.desc = desc
+        
+        return
+    
+
 class VCF(File):
     """Class supports various functions for processing VCF file
     It provides general VCF process methods.
@@ -93,14 +112,30 @@ class VCF(File):
         """
         pass
         return
-
-    def import_from_json(self) -> None:
-        pass
-        return    
-
-    def export_to_json(self) -> None:
-        pass
-        return
+    
+    def parse_header_lines(self):
+        ...
+        """Parse header lines starting with '##' to save meta info of VCF file"""
+        
+        meta_info = dict()
+        
+        vcf = VCF(self.vcf)
+        vcf.open()
+        line = vcf.readline(skip_header=False)
+        while line != '':
+            if line[:2] != '##':
+                break
+            
+            field = line[2:].strip().split('=')[0]
+            if field not in meta_info.keys():
+                meta_info[field] = dict()
+            
+            contents: List[str] = line[2:].strip().split('=')[1]
+            contents = contents[1:-1].split(',')
+            
+            line = vcf.readline(skip_header=False)
+        
+        return        
     
     def reader(self) -> None:
         pass
