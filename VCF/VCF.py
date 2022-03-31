@@ -12,7 +12,7 @@ class metaFILTER:
     
     Example
     -------
-    ## FILTER=<ID=paSS,Description="All filters passed">
+    ##FILTER=<ID=paSS,Description="All filters passed">
     """
     
     def __init__(self,
@@ -23,7 +23,29 @@ class metaFILTER:
         self.desc = desc
         
         return
+
+
+class metaFORMAT:
+    """Class contains 'FORMAT' field meta information
     
+    Example
+    -------
+    ##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic ..">
+    """
+    
+    def __init__(self,
+        id : str,
+        number : str,
+        type : str,
+        desc : str):
+
+        self.id = id
+        self.number = number
+        self.type = type
+        self.desc = desc
+
+        return
+
 
 class VCF(File):
     """Class supports various functions for processing VCF file
