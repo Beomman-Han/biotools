@@ -183,19 +183,6 @@ class VCF(File):
             raise Exception('Check file extension (only .vcf | .vcf.gz)')
 
     def sanity_check(self) -> bool:
-        """Check whether self.vcf file has weird format.
-        
-        > All variant lines have the same # of columns
-        > Load ## header lines and check it's ID and Number... etc. is normally matched.
-        > Whether REF == ALT allele
-        > Check DP == 0
-        > Whether chromosome naming is uniform ('chr1' or '1' / 'chrY' or 'chr23' / 'chrM' or 'chrM')
-        
-        Returns
-        -------
-        bool
-            Is self.vcf normal format
-        """
         pass
         return
     
@@ -491,7 +478,7 @@ class VCF(File):
         
         return
 
-    def _check_header(self, line : str) -> bool:
+    def _is_header(self, line : str) -> bool:
         """Check whether input line is vcf header line.
         
         Parameters
@@ -506,21 +493,7 @@ class VCF(File):
         """
         
         return line[0] == '#'
-    
-    def get_header_line(self):
-        
-        proc = VCF(self.vcf)
-        proc.open()
-        line = proc.readline(skip_header=False)
-        while line != '':
-            if self._check_header(line):
-                yield line
-            else:
-                break
-            line = proc.readline(skip_header=False)            
-        proc.close()
-        
-        return
+
 
 if __name__ == '__main__':
     # vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
@@ -560,7 +533,10 @@ if __name__ == '__main__':
     ## test 'parse_header_lines' method
     path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
     vcf = VCF(path)
-    meta_info = vcf.parse_meta_info_lines()
-    # print(meta_info)
-    for key in meta_info.keys():
-        print(f'{key}:{[str(e) for e in meta_info[key]]}')
+    # meta_info = vcf.parse_meta_info_lines()
+    # # print(meta_info)
+    # for key in meta_info.keys():
+    #     print(f'{key}:{[str(e) for e in meta_info[key]]}')
+    
+    ## test 'read_header_line' method
+    
