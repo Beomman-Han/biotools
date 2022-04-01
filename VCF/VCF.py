@@ -347,7 +347,7 @@ class VCF(File):
             if len(cols) < 9:
                 yield varRecord(*cols[:8])
             else:
-                yield varRecord(*cols[:8], cols[8], cols[9:], self.header)
+                yield varRecord(*cols[:8], cols[8], cols[9:], self.header[9:])
             line = self.readline()
 
         return
