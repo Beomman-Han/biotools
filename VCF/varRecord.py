@@ -153,7 +153,7 @@ class varRecord:
             try:
                 key, value = info_data.split('=')
             except ValueError:
-                key = info_data[0]
+                key = info_data
                 value = ''
             self._info[key.strip()] = value.strip()
         return
