@@ -3,6 +3,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from typing import Dict, Generator, List, Literal, Type
 
+from varRecord import varRecord
 from File import File
 import gzip
 
@@ -257,8 +258,28 @@ class VCF(File):
         
         return meta_info
     
-    def reader(self) -> None:
-        pass
+    def reader(self) -> Generator[varRecord, None, None]:
+        """Generator function read vcf file line by line.
+        
+        Yields
+        ------
+        varRecord
+            varRecord parsed from each vcf line
+        """
+        
+        if not self.f_obj:
+            print(f'[ERROR] {self.vcf} is not opened.')
+            return
+        
+        line = self.readline()
+        while line != '':
+            cols = line.strip().split('\t')
+            if len(cols) < 9:
+                yield varRecord(*cols[:8])
+            else:
+                yield varRecord(*cols[:8], cols[8], cols[9:], self.header)
+            line = self.readline()
+
         return
 
     def open(self,
@@ -530,7 +551,7 @@ if __name__ == '__main__':
     # proc.write('chrM\t73\t.\tA\tG\t1551\tPASS\tSNVHPOL=3;MQ=60\tGT:GQ:GQX:DP:DPF:AD:ADF:ADR:SB:FT:PL\t1/1:12:9:5:0:0,5:0,5:0,0:0.0:PASS:111,15,0\n')
     # proc.close()
     
-    ## test 'parse_header_lines' method
+    ## test 'parse_meta_info_lines' method
     path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
     vcf = VCF(path)
     # meta_info = vcf.parse_meta_info_lines()
@@ -538,5 +559,7 @@ if __name__ == '__main__':
     # for key in meta_info.keys():
     #     print(f'{key}:{[str(e) for e in meta_info[key]]}')
     
-    ## test 'read_header_line' method
-    
+    ## test 'reader' method
+    vcf.open()
+    for variant in vcf.reader():
+        print(variant)

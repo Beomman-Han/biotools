@@ -63,8 +63,9 @@ class varRecord:
         self.info : Dict[str, str] = info
         
         ## optional attributes
-        self.format_headers : Dict[str, str] = format_header
-        self.sample_info : Dict[str, Dict[str, str]] = self._parse_sample_format(format_list, sample_name_list)
+        if format_header and format_list and sample_name_list:
+            self.format_headers : Dict[str, str] = format_header
+            self.sample_info : Dict[str, Dict[str, str]] = self._parse_sample_format(format_list, sample_name_list)
 
         return
     
