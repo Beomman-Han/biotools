@@ -202,6 +202,10 @@ class varRecord:
             res_str += f', {self.format_headers}, {self.sample_info})'
             return res_str
     
+    def get_column_num(self) -> int:
+        """Return # of columns at VCF data line"""
+        cols = [ getattr(self, c) for c in self.__slots__ if getattr(self, c) ]
+        return len(cols)
         
 if __name__ == "__main__":
     sample_list = ["NA00001", "NA00002"]
@@ -216,10 +220,18 @@ if __name__ == "__main__":
     
     print(f'Size of \'varRecord\' instance : {sys.getsizeof(test_var)} bytes')
     # print(sys.getsizeof(test_var.__dict__))
-    print(sys.getsizeof(test_var.__slots__))
-    
-    from pprint import pprint
-    
+    # print(sys.getsizeof(test_var.__slots__))
+
+    from pprint import pprint    
     print(test_var.chrom)
     pprint(test_var.info)
     pprint(test_var.sample_info)
+    
+    ## test for 'get_column_num' method
+    # test_var = varRecord(*test_info[:8])
+    test_var = varRecord(*test_info[:8],
+                    format_header=test_info[8],
+                    format_list=test_info[9:],
+                    sample_name_list=sample_list)
+
+    print(test_var.get_column_num())
