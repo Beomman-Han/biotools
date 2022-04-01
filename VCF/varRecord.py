@@ -195,7 +195,7 @@ class varRecord:
         res_str += f', {self.ID}, {self.ref}'
         res_str += f', {self.alt}, {self.qual}'
         res_str += f', {self.filter}, {self.info}'
-        if self.format_headers and self.sample_info:
+        if not self.format_headers and not self.sample_info:
             res_str += ')'
             return res_str
         else:
@@ -206,6 +206,7 @@ class varRecord:
         """Return # of columns at VCF data line"""
         cols = [ getattr(self, c) for c in self.__slots__ if getattr(self, c) ]
         return len(cols)
+
         
 if __name__ == "__main__":
     sample_list = ["NA00001", "NA00002"]
