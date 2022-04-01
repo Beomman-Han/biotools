@@ -66,6 +66,9 @@ class varRecord:
         if format_header and format_list and sample_name_list:
             self.format_headers : Dict[str, str] = format_header
             self.sample_info : Dict[str, Dict[str, str]] = self._parse_sample_format(format_list, sample_name_list)
+        else:
+            self.format_headers = None
+            self.sample_info = None
 
         return
     
@@ -186,6 +189,19 @@ class varRecord:
                     sample_info[sample_name][self.format_headers[i]] = value
         return sample_info
 
+    def __str__(self) -> str:
+        res_str = f'varRecord'
+        res_str += f'({self.chrom}, {self.pos}'
+        res_str += f', {self.ID}, {self.ref}'
+        res_str += f', {self.alt}, {self.qual}'
+        res_str += f', {self.filter}, {self.info}'
+        if self.format_headers and self.sample_info:
+            res_str += ')'
+            return res_str
+        else:
+            res_str += f', {self.format_headers}, {self.sample_info})'
+            return res_str
+    
         
 if __name__ == "__main__":
     sample_list = ["NA00001", "NA00002"]
