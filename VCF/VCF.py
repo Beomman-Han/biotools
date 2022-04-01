@@ -184,8 +184,78 @@ class VCF(File):
             raise Exception('Check file extension (only .vcf | .vcf.gz)')
 
     def sanity_check(self) -> bool:
-        pass
-        return
+        """Check integrity of self.vcf file.
+        Checking codes are from the content of official VCF format docs
+        (https://samtools.github.io/hts-specs/VCFv4.2.pdf).
+
+        > Load ## header lines and check it's ID and Number... etc. is normally matched
+         > Fields of INFO/FORMAT are in meta info lines (V, only INFO)
+         > In INFO/FORMAT, Type must be Integer, Float, Flag, Character, String
+         > In INFO/FORMAT, Number must be 0, 1, ..., A, R, G, .
+         > If Type is Flag -> Number must be 0
+        > All variant lines have the same # of columns (V)
+        > Whether REF == ALT allele (V)
+        > Check DP == 0 (V)
+        
+        Returns
+        -------
+        bool
+            Is self.vcf normal format
+        """
+        
+        meta_info = self.parse_meta_info_lines()
+        if not meta_info:
+            print(f'[Warning] VCF does not have meta info lines')
+            return False
+        info_fields = set([f.id for f in meta_info['INFO']])
+        
+        ## check meta information lines
+        for field in meta_info['INFO']:
+            ## check Number == '.' (unknown value)
+            if field.number == '.':
+                print(f'{field.id} of INFO has unknown range')
+            ## check strange Type
+            if field.type not in metaINFO.TYPES:
+                print(f'{field.id} of INFO is unknown type')
+                print(f'{field.type}')
+        if 'FORMAT' in meta_info.keys():
+            for field in meta_info['FORMAT']:
+                ## check Number == '.'
+                if field.number == '.':
+                    print(f'{field.id} of FORMAT has unknown range')
+                ## check strange Type
+                if field.type not in metaFORMAT.TYPES:
+                    print(f'{field.id} of FORMAT is unknown type')
+                    print(f'{field.type}')
+        
+        vcf = VCF(self.vcf)
+        vcf.open()
+        for variant in vcf.reader():
+            ## check column count
+            if len(vcf.header) != variant.get_column_num():
+                print(f'[Warning] VCF has a line with different column count')
+                print(f'{variant}')
+                return False
+            ## check whether REF == ALT
+            if variant.ref == variant.alt:
+                print(f'[Warning] VCF has a line with ref == alt')
+                print(f'{variant}')
+                return False
+            ## check if DP == 0 (in INFO)
+            if 'DP' in variant.info.keys():
+                if variant.info['DP'] == 0:
+                    print(f'[Warning] VCF has a line with DP == 0')
+                    print(f'{variant}')
+                    return False
+            ## check INFO fields and meta lines
+            for key in variant.info.keys():
+                if key not in info_fields:
+                    print(f'[Warning] Detect strange INFO field')
+                    print(f'Check {key} is in meta lines')
+                    print(f'{variant}')
+                    return False
+                
+        return True
     
     def parse_meta_info_lines(self) -> Dict[str, List]:
         """Parse meta information lines starting with '##' to save meta info of VCF file.
@@ -552,7 +622,8 @@ if __name__ == '__main__':
     # proc.close()
     
     ## test 'parse_meta_info_lines' method
-    path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
+    # path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
+    path = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
     vcf = VCF(path)
     # meta_info = vcf.parse_meta_info_lines()
     # # print(meta_info)
@@ -560,6 +631,12 @@ if __name__ == '__main__':
     #     print(f'{key}:{[str(e) for e in meta_info[key]]}')
     
     ## test 'reader' method
+    # vcf.open()
+    # for variant in vcf.reader():
+    #     print(variant)
+    
+    ## test 'sanity_check' method
+    print(vcf.sanity_check())
     vcf.open()
     for variant in vcf.reader():
         print(variant)
