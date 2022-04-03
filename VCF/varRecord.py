@@ -63,8 +63,12 @@ class varRecord:
         self.info : Dict[str, str] = info
         
         ## optional attributes
-        self.format_headers : Dict[str, str] = format_header
-        self.sample_info : Dict[str, Dict[str, str]] = self._parse_sample_format(format_list, sample_name_list)
+        if format_header and format_list and sample_name_list:
+            self.format_headers : Dict[str, str] = format_header
+            self.sample_info : Dict[str, Dict[str, str]] = self._parse_sample_format(format_list, sample_name_list)
+        else:
+            self.format_headers = None
+            self.sample_info = None
 
         return
     
@@ -149,7 +153,7 @@ class varRecord:
             try:
                 key, value = info_data.split('=')
             except ValueError:
-                key = info_data[0]
+                key = info_data
                 value = ''
             self._info[key.strip()] = value.strip()
         return
@@ -185,6 +189,24 @@ class varRecord:
                     sample_info[sample_name][self.format_headers[i]] = value
         return sample_info
 
+    def __str__(self) -> str:
+        res_str = f'varRecord'
+        res_str += f'({self.chrom}, {self.pos}'
+        res_str += f', {self.ID}, {self.ref}'
+        res_str += f', {self.alt}, {self.qual}'
+        res_str += f', {self.filter}, {self.info}'
+        if not self.format_headers and not self.sample_info:
+            res_str += ')'
+            return res_str
+        else:
+            res_str += f', {self.format_headers}, {self.sample_info})'
+            return res_str
+    
+    def get_column_num(self) -> int:
+        """Return # of columns at VCF data line"""
+        cols = [ getattr(self, c) for c in self.__slots__ if getattr(self, c) ]
+        return len(cols)
+
         
 if __name__ == "__main__":
     sample_list = ["NA00001", "NA00002"]
@@ -199,10 +221,18 @@ if __name__ == "__main__":
     
     print(f'Size of \'varRecord\' instance : {sys.getsizeof(test_var)} bytes')
     # print(sys.getsizeof(test_var.__dict__))
-    print(sys.getsizeof(test_var.__slots__))
-    
-    from pprint import pprint
-    
+    # print(sys.getsizeof(test_var.__slots__))
+
+    from pprint import pprint    
     print(test_var.chrom)
     pprint(test_var.info)
     pprint(test_var.sample_info)
+    
+    ## test for 'get_column_num' method
+    # test_var = varRecord(*test_info[:8])
+    test_var = varRecord(*test_info[:8],
+                    format_header=test_info[8],
+                    format_list=test_info[9:],
+                    sample_name_list=sample_list)
+
+    print(test_var.get_column_num())
