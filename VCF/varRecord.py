@@ -1,6 +1,7 @@
-import os, sys
-from traceback import format_list
+import sys
 from typing import List, Dict
+
+__all__ = ('varRecord',)
 
 # VCFv4.3
 class varRecord:
