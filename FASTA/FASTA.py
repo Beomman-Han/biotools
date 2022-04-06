@@ -335,6 +335,31 @@ class FASTA(File):
             for target in matched_iter:
                 print(f'find title : {fasta[0]}')
 
+    def rename_title(self, convert_file: str, new_file: str) -> None:
+        """Rename titles from convert_file and write file with new title
+        
+        convert_file:
+        old_title\tnew_title\n
+        """
+
+        titles = dict()
+        convert_file = open(convert_file, 'r')
+        for line in convert_file:
+            cols = line.strip().split('\t')
+            titles[cols[0]] = cols[1]
+        convert_file.close()
+        
+        new_fa = FASTA(new_file)
+        new_fa.open(mode='w')
+        
+        for seq in self.reader():
+            new_seq = seq.rename_title(titles[seq.title])
+            new_fa.write(new_seq.title, new_seq.seq, new_seq.description)
+        new_fa.close()
+        
+        return
+
+
 if __name__ == "__main__":
 
     fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
@@ -346,4 +371,6 @@ if __name__ == "__main__":
     print(seq)
     
     # fa.rename_title('')
+    fa.rename_title('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.tsv', '/Users/hanbeomman/Documents/project/mg-bio/FASTA/new_test.fa')
+    
     
