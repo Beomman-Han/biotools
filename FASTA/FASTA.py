@@ -35,6 +35,13 @@ class SeqRecord:
         self.description = description
         
         return
+    
+    def rename_title(self, new_title: str) -> Type['SeqRecord']:
+        """Return new SeqRecord instance with new title and same content"""
+        
+        new_seqrecord = SeqRecord(self.seq, new_title, self.description)        
+        return new_seqrecord
+       
 
 class FASTA(File):
     """Class supports functions that process FASTA format file"""
@@ -84,6 +91,9 @@ class FASTA(File):
         self.open_obj = False
         return
     
+    def readline(self):
+        ...
+        
     def reader(self) -> Generator[Tuple[str], None, None]:
         """Generator function parsing fasta format contents
 
@@ -319,8 +329,13 @@ class FASTA(File):
             matched_iter = p.finditer((fasta[0]))
             for target in matched_iter:
                 print(f'find title : {fasta[0]}')
-    
+
 if __name__ == "__main__":
 
-    fa = FASTA('./test.fa')
-    pass
+    fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
+    fa.open()
+    for seq in fa.reader():
+        print(seq)
+    
+    seq = SeqRecord('AAAA', 'chr1', 'chromosome 1')
+    print(seq)
