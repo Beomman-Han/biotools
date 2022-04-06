@@ -5,6 +5,8 @@ import json
 from typing import Dict, TextIO, Tuple, Type, Generator
 
 from ..File import File
+from .Seq import Seq
+from .Constant import *
 
 __all__ = ('SeqRecord', 'FASTA')
 
