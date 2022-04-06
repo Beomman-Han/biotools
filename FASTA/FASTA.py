@@ -99,13 +99,13 @@ class FASTA(File):
     def readline(self):
         ...
         
-    def reader(self) -> Generator[Tuple[str], None, None]:
+    def reader(self) -> Generator[SeqRecord, None, None]:
         """Generator function parsing fasta format contents
 
         Yields
         ------
-        Tuple[str]
-            tuple of contig name, description, sequence
+        SeqRecord
+            SeqRecord instance with contig name, description, sequence
         """
         
         if not self.open_obj:
@@ -116,15 +116,15 @@ class FASTA(File):
         for line in self.open_obj:
             if line.startswith('>'):
                 if len(sequences) != 0:
-                    yield(title, desc, ''.join(sequences))
+                    yield SeqRecord(''.join(sequences), title, desc)
                     
                 title = line.strip().split()[0][1:]
                 try: desc = ' '.join(line.strip().split()[1:])
                 except: desc = ''
                 sequences = []
             else:
-                sequences.append(line.strip())
-        yield title, desc, ''.join(sequences)
+                sequences.append(line)
+        yield SeqRecord(''.join(sequences), title, desc)
     
     def write(self,
         title : str,
