@@ -4,9 +4,9 @@ import json
 
 from typing import Dict, TextIO, Tuple, Type, Generator
 
-from ..File import File
-from .Seq import Seq
-from .Constant import *
+from biotools.File import File
+from biotools.FASTA.Seq import Seq
+from biotools.FASTA.Constant import *
 
 __all__ = ('SeqRecord', 'FASTA')
 
@@ -49,7 +49,17 @@ class SeqRecord:
         return res_str
 
 class FASTA(File):
-    """Class supports functions that process FASTA format file"""
+    """Class supports functions that process FASTA format file
+    
+    Example
+    -------
+    >>> import sys
+    >>> sys.path.appned('/Users/hanbeomman/Documents/project/')
+    >>> from biotools.FASTA import FASTA
+    >>> fa = FASTA('/Users/hanbeomman/Documents/project/biotools/FASTA/test.fa')
+    >>> fa.open()
+    >>> fa.close()
+    """
     
     def __init__(self, path: str) -> None:
         """Initialize FASTA class
@@ -359,18 +369,22 @@ class FASTA(File):
         
         return
 
+def _test():
+    import doctest
+    
+    doctest.testmod()
 
 if __name__ == "__main__":
 
-    fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
-    fa.open()
-    # for seq in fa.reader():
-    #     print(seq)
+    # fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
+    # fa.open()
+    # # for seq in fa.reader():
+    # #     print(seq)
     
-    seq = SeqRecord('AAAA', 'chr1', 'chromosome 1')
-    print(seq)
+    # seq = SeqRecord('AAAA', 'chr1', 'chromosome 1')
+    # print(seq)
     
-    # fa.rename_title('')
-    fa.rename_title('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.tsv', '/Users/hanbeomman/Documents/project/mg-bio/FASTA/new_test.fa')
+    # # fa.rename_title('')
+    # fa.rename_title('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.tsv', '/Users/hanbeomman/Documents/project/mg-bio/FASTA/new_test.fa')
     
-    
+    _test()

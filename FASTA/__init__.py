@@ -3,6 +3,6 @@
 #         Seq,
 #     )
 
-from .FASTA import *
-from .Seq import *
-from .Constant import *
+from biotools.FASTA.FASTA import *
+from biotools.FASTA.Seq import *
+from biotools.FASTA.Constant import *
