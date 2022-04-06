@@ -149,10 +149,10 @@ class FASTA(File):
         
         elif 'w' in self.open_mode:
             fasta_title = f'>{title}'
-            if desc: fasta_title += f' {desc}'
+            if desc:
+                fasta_title += f' {desc}'
             self.open_obj.write(f'{fasta_title}\n')
-            for i in range(0, len(sequence), 70):
-                self.open_obj.write(sequence[i:i+70]+'\n')
+            self.open_obj.write(sequence)
 
         return
     
@@ -339,8 +339,11 @@ if __name__ == "__main__":
 
     fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
     fa.open()
-    for seq in fa.reader():
-        print(seq)
+    # for seq in fa.reader():
+    #     print(seq)
     
     seq = SeqRecord('AAAA', 'chr1', 'chromosome 1')
     print(seq)
+    
+    # fa.rename_title('')
+    
