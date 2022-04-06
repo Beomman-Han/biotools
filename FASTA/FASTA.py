@@ -41,7 +41,12 @@ class SeqRecord:
         
         new_seqrecord = SeqRecord(self.seq, new_title, self.description)        
         return new_seqrecord
-       
+
+    def __str__(self) -> str:
+        res_str = ''
+        res_str += f'>{self.title} {self.description}\n'
+        res_str += f'{self.seq}'
+        return res_str
 
 class FASTA(File):
     """Class supports functions that process FASTA format file"""
