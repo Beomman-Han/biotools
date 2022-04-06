@@ -1,14 +1,12 @@
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+import re
+import json
 
 from typing import Dict, TextIO, Tuple, Type, Generator
 
-from Seq import Seq
-from File import File
+from ..File import File
 
-import re, json
-import Constant
-
+__all__ = ('SeqRecord', 'FASTA')
 
 class SeqRecord:
     def __init__(
@@ -306,7 +304,7 @@ class FASTA(File):
         if verbose: print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
     
         if mode == "r":
-            check_base = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
+            check_base = [base in BASE_IUPAC for base in target_seq[2].strip()]
             check_bool: bool = all(check_base)
             true_list = list((filter(lambda x: x, check_base)))
             if check_bool == False:

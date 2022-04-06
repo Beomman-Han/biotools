@@ -1,5 +1,4 @@
 from typing import Dict, Type
-from Constant import *
 
 class Seq:
     def __init__(self,
