@@ -1,117 +1,81 @@
-# mg-bio
+# biotools
 
-Project for supporting various functions relating bioinformatics. Currently, the project supports functions for FASTA and VCF format files. We have plan to provide functions for files in other formats as well as FASTA/VCF. For inquiries related to this project, please contact us below.
+This is a project for providing functions to handle biological data (e.g. ngs data). Currently, the project supports functions for fasta and vcf format data. Our plan is to provide more functions for data of other formats as well as fasta/vcf. For inquiries related to this project, please contact us below.  
+@Beomman-Han @mellowo @cyruinous
 
-@Beomman-Han
-@mellowo
-@cyruinous
-
-<br/>
-
-## Pre-requisite
-Codes in mg-bio are tested with Python >= 3.9.6 and contains below python modules.
-
-- re, json, gzip
-
-If your python does not have modules, please install modules with pip command or else.
-
+## Installation
+Package could be installed with below command (python >= 3.7).
 ```sh
-$ pip install re, json, gzip
+tar zxvf biotools.tar.gz
+cd biotools
+python setup.py install
 ```
 
-<br/>
-
-## Install
-Please download codes from git repository.
-```sh
-$ git clone https://github.com/Beomman-Han/mg-bio.git
-```
-
-And please add path of directory containing mg-bio project below python statement.
-
-```python
-import sys
-sys.path.append(mg_bio_path)
-```
-
-<br/>
-
-## Example
-
+## Quick Start
 ### FASTA
-
 ```python
-from mgbio import FASTA
+import FASTA
 
-## Init FASTA instance
+## init FASTA instance
 path = '/path/to/fasta'
 fasta = FASTA.FASTA(path)
 
-## Open .fa file
+## open .fa file
 fasta.open()
 
-## Read by line
-for line in fasta.reader():
-    print(line)
-```
+## read by each entry
+for seq in fasta.reader():  ## Seq instance
+    print(Seq)
 
-<br/>
+## init Seq instance
+sequence = 'ACGTAAACGTCCGTGAT'
+seq = FASTA.Seq(sequence)
+
+## get reverse/complement sequence
+rev_seq = seq.reverse()
+com_seq = seq.complement()
+rev_com_seq = seq.reverse_complement()
+
+## count base
+a_count = seq.count('A')
+
+## calculate gc ratio
+gc_content = seq.cal_gc_ratio()
+
+## transcribe DNA seq
+dna_sequence = 'ACGTCCCGTAGTCAGTCC'
+rna_seq = Seq(dna_sequence).transcribe()
+
+## translate RNA seq
+rna_sequence = 'ACUUUGUCAUGUUGCAUGUAU'
+protein_seq = Seq(rna_sequence, 'RNA').translate()
+```
 
 ### VCF
-
 ```python
-from mgbio import VCF
+import VCF
 
-## Init VCF instance
-path = '/path/to/vcf'
+## init VCF instance
+path = '/path/to/vcf'  ## could be .vcf and .vcf.gz
 vcf = VCF.VCF(path)
 
-## Open .vcf file
+## sanity check
+vcf.sanity_check()  ## True or False
+
+## get meta information
+meta_info = vcf.parse_meta_info()  ## dictionary of meta lines
+
+## open .vcf file
 vcf.open()
 
-## Read one line
-print(vcf.readline())
+## read by each variant
+for var in vcf.reader():  ## varRecord instance
+    print(var)
+
+## read by each line
+line = vcf.readline()  ## each line (str)
+
+## filter with GT
+for line in vcf.get_genotype(['1/1']):  ## alt homo
+    print(line)
 ```
-
-<br/>
-
-## Style Guide
-
-### Naming Convention
-
-1) ClassName : PascalCase
-
-2) function_name (or method_name) : snake_case
-
-3) variable_name : snake_case
-
-4) CONSTANT_NAME : SNAKE_CASE_WITH_UPPER_CASE
-
-5) Recommend using plural format (ex. sequences <- list of sequence)
-
-```python
-class SeqRecord:
-    ...
-
-def export_to_json(self,
-    output_name : str,
-    seq_dict : dict = False
-    ) -> None:
-
-BASE_IUPAC = {
-    'A', 'C', 'G', 'T',
-    'U', 'R', 'Y', 'M',
-    'K', 'W', 'S', 'B',
-    'D', 'H', 'V', 'N'
-}
-```
-
-<br/>
-
-### Commit Guide
-
-1) Commit every modification of the project
-
-2) Please write commit message in detail
-
-3) Codes must be flawless when the codes are committed
