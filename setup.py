@@ -38,6 +38,6 @@ setup(
     description='first version of biotools package',
     author='Beomman Han',
     author_email='qjaaks6378@gmail.com',
-    packages=['biotools'],
-    install_requires=['gzip', 're', 'json']
+    packages=['FASTA', 'VCF'],
+    #install_requires=['gzip', 're', 'json']
 )

@@ -1,2 +1,2 @@
-from biotools.VCF.VCF import *
-from biotools.VCF.varRecord import *
+from VCF.VCF import *
+from VCF.varRecord import *

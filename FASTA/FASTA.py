@@ -4,9 +4,9 @@ import json
 
 from typing import Dict, TextIO, Tuple, Type, Generator
 
-from biotools.File import File
-from biotools.FASTA.Seq import Seq
-from biotools.FASTA.Constant import *
+from File import File
+from FASTA.Seq import Seq
+from FASTA.Constant import *
 
 __all__ = ('SeqRecord', 'FASTA')
 

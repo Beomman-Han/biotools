@@ -1,6 +1,6 @@
 from typing import Dict, Type
 
-from biotools.FASTA.Constant import *
+from FASTA.Constant import *
 
 __all__ = ('Seq',)
 

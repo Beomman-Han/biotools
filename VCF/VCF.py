@@ -2,8 +2,8 @@ import os
 
 from typing import Dict, Generator, List, Literal
 
-from biotools.VCF.varRecord import varRecord
-from biotools.File import File
+from VCF.varRecord import varRecord
+from File import File
 import gzip
 
 __all__ = ('metaFILTER', 'metaFORMAT', 'metaINFO', 'VCF')
