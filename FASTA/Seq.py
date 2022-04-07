@@ -1,5 +1,8 @@
 from typing import Dict, Type
-from Constant import *
+
+from FASTA.Constant import *
+
+__all__ = ('Seq',)
 
 class Seq:
     def __init__(self,

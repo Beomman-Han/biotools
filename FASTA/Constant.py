@@ -1,3 +1,7 @@
+__all__ = ('BASE_IUPAC', 'AMINO_ACID_IUPAC',
+           'IUPAC_PAIR', 'CODON_TABLE',
+           'IUPAC_TABLE')
+
 ## IUPAC info was referred from http://www.incodom.kr/IUPAC
 BASE_IUPAC = {
     'A', 'C', 'G', 'T',

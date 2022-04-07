@@ -1,12 +1,12 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+import os
 
-from typing import Dict, Generator, List, Literal, Type
+from typing import Dict, Generator, List, Literal
 
-from varRecord import varRecord
+from VCF.varRecord import varRecord
 from File import File
 import gzip
 
+__all__ = ('metaFILTER', 'metaFORMAT', 'metaINFO', 'VCF')
 
 class metaFILTER:
     """Class contains 'FILTER' field meta information

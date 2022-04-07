@@ -1,14 +1,14 @@
 import os, sys
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+import re
+import json
 
 from typing import Dict, TextIO, Tuple, Type, Generator
 
-from Seq import Seq
 from File import File
+from FASTA.Seq import Seq
+from FASTA.Constant import *
 
-import re, json
-import Constant
-
+__all__ = ('SeqRecord', 'FASTA')
 
 class SeqRecord:
     def __init__(
@@ -35,9 +35,31 @@ class SeqRecord:
         self.description = description
         
         return
+    
+    def rename_title(self, new_title: str) -> Type['SeqRecord']:
+        """Return new SeqRecord instance with new title and same content"""
+        
+        new_seqrecord = SeqRecord(self.seq, new_title, self.description)        
+        return new_seqrecord
+
+    def __str__(self) -> str:
+        res_str = ''
+        res_str += f'>{self.title} {self.description}\n'
+        res_str += f'{self.seq}'
+        return res_str
 
 class FASTA(File):
-    """Class supports functions that process FASTA format file"""
+    """Class supports functions that process FASTA format file
+    
+    Example
+    -------
+    >>> import sys
+    >>> sys.path.appned('/Users/hanbeomman/Documents/project/')
+    >>> from biotools.FASTA import FASTA
+    >>> fa = FASTA('/Users/hanbeomman/Documents/project/biotools/FASTA/test.fa')
+    >>> fa.open()
+    >>> fa.close()
+    """
     
     def __init__(self, path: str) -> None:
         """Initialize FASTA class
@@ -84,13 +106,16 @@ class FASTA(File):
         self.open_obj = False
         return
     
-    def reader(self) -> Generator[Tuple[str], None, None]:
+    def readline(self):
+        ...
+        
+    def reader(self) -> Generator[SeqRecord, None, None]:
         """Generator function parsing fasta format contents
 
         Yields
         ------
-        Tuple[str]
-            tuple of contig name, description, sequence
+        SeqRecord
+            SeqRecord instance with contig name, description, sequence
         """
         
         if not self.open_obj:
@@ -101,15 +126,15 @@ class FASTA(File):
         for line in self.open_obj:
             if line.startswith('>'):
                 if len(sequences) != 0:
-                    yield(title, desc, ''.join(sequences))
+                    yield SeqRecord(''.join(sequences), title, desc)
                     
                 title = line.strip().split()[0][1:]
                 try: desc = ' '.join(line.strip().split()[1:])
                 except: desc = ''
                 sequences = []
             else:
-                sequences.append(line.strip())
-        yield title, desc, ''.join(sequences)
+                sequences.append(line)
+        yield SeqRecord(''.join(sequences), title, desc)
     
     def write(self,
         title : str,
@@ -134,10 +159,10 @@ class FASTA(File):
         
         elif 'w' in self.open_mode:
             fasta_title = f'>{title}'
-            if desc: fasta_title += f' {desc}'
+            if desc:
+                fasta_title += f' {desc}'
             self.open_obj.write(f'{fasta_title}\n')
-            for i in range(0, len(sequence), 70):
-                self.open_obj.write(sequence[i:i+70]+'\n')
+            self.open_obj.write(sequence)
 
         return
     
@@ -291,7 +316,7 @@ class FASTA(File):
         if verbose: print(f'file format is fasta. \nStart the sanity check for {target_seq[0]}')
     
         if mode == "r":
-            check_base = [base in Constant.BASE_IUPAC for base in target_seq[2].strip()]
+            check_base = [base in BASE_IUPAC for base in target_seq[2].strip()]
             check_bool: bool = all(check_base)
             true_list = list((filter(lambda x: x, check_base)))
             if check_bool == False:
@@ -319,8 +344,47 @@ class FASTA(File):
             matched_iter = p.finditer((fasta[0]))
             for target in matched_iter:
                 print(f'find title : {fasta[0]}')
+
+    def rename_title(self, convert_file: str, new_file: str) -> None:
+        """Rename titles from convert_file and write file with new title
+        
+        convert_file:
+        old_title\tnew_title\n
+        """
+
+        titles = dict()
+        convert_file = open(convert_file, 'r')
+        for line in convert_file:
+            cols = line.strip().split('\t')
+            titles[cols[0]] = cols[1]
+        convert_file.close()
+        
+        new_fa = FASTA(new_file)
+        new_fa.open(mode='w')
+        
+        for seq in self.reader():
+            new_seq = seq.rename_title(titles[seq.title])
+            new_fa.write(new_seq.title, new_seq.seq, new_seq.description)
+        new_fa.close()
+        
+        return
+
+def _test():
+    import doctest
     
+    doctest.testmod()
+
 if __name__ == "__main__":
 
-    fa = FASTA('./test.fa')
-    pass
+    # fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
+    # fa.open()
+    # # for seq in fa.reader():
+    # #     print(seq)
+    
+    # seq = SeqRecord('AAAA', 'chr1', 'chromosome 1')
+    # print(seq)
+    
+    # # fa.rename_title('')
+    # fa.rename_title('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.tsv', '/Users/hanbeomman/Documents/project/mg-bio/FASTA/new_test.fa')
+    
+    _test()
