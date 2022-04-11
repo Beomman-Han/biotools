@@ -53,12 +53,18 @@ class FASTA(File):
     
     Example
     -------
-    >>> import sys
-    >>> sys.path.appned('/Users/hanbeomman/Documents/project/')
-    >>> from biotools.FASTA import FASTA
-    >>> fa = FASTA('/Users/hanbeomman/Documents/project/biotools/FASTA/test.fa')
-    >>> fa.open()
-    >>> fa.close()
+    >>> from BI import FASTA
+    >>> fasta = FASTA.FASTA('./data/small.fa')
+    >>> fasta.open()
+    >>> for line in fasta.reader():
+    ...     print(line)
+    >chr1 test chromosome 1
+    ACGTACGT
+    ACGTAAAA
+    AAAAAAAA
+    CCCCCCCC
+    <BLANKLINE>
+    >>> fasta.close()
     """
     
     def __init__(self, path: str) -> None:
@@ -370,21 +376,13 @@ class FASTA(File):
         return
 
 def _test():
+
     import doctest
-    
     doctest.testmod()
+    
+    return
+
 
 if __name__ == "__main__":
 
-    # fa = FASTA('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.fa')
-    # fa.open()
-    # # for seq in fa.reader():
-    # #     print(seq)
-    
-    # seq = SeqRecord('AAAA', 'chr1', 'chromosome 1')
-    # print(seq)
-    
-    # # fa.rename_title('')
-    # fa.rename_title('/Users/hanbeomman/Documents/project/mg-bio/FASTA/test.tsv', '/Users/hanbeomman/Documents/project/mg-bio/FASTA/new_test.fa')
-    
     _test()
