@@ -32,5 +32,5 @@ jobs:
         python setup.py install
     - name: Test with doctest
       run: |
-        python BI/FASTA/FASTA.py
-        python BI/VCF/VCF.py
+        python ./BI/FASTA/FASTA.py
+        python ./BI/VCF/VCF.py
