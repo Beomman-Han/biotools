@@ -3,6 +3,5 @@ __pycache__/
 *.fasta
 *_fasta
 test*
-*.vcf
 *bak
 .DS_Store
