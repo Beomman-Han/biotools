@@ -123,6 +123,26 @@ class VCF(File):
     Methods
     -------
     To be written...
+    
+    Example
+    -------
+    >>> from BI import VCF
+    >>> vcf = VCF.VCF('./data/trio.2010_06.ychr.sites.vcf')
+    >>> vcf.sanity_check()
+    AC of INFO has unknown range
+    True
+    >>> vcf.open()
+    >>> meta_info = vcf.parse_meta_info_lines()
+    >>> for line in vcf.reader():
+    ...     print(line)
+    varRecord(Y, 2728456, rs2058276, T, C, 32.0, ., {'AC': '2', 'AN': '2', 'DB': '', 'DP': '182', 'H2': '', 'NS': '65'})
+    varRecord(Y, 2734240, ., G, A, 31.0, ., {'AC': '1', 'AN': '2', 'DP': '196', 'NS': '63'})
+    varRecord(Y, 2743242, ., C, T, 25.0, ., {'AC': '1', 'AN': '2', 'DP': '275', 'NS': '66'})
+    varRecord(Y, 2746727, ., A, G, 34.0, ., {'AC': '2', 'AN': '2', 'DP': '179', 'NS': '64'})
+    varRecord(Y, 2777970, ., T, A, 67.0, ., {'AC': '1', 'AN': '2', 'DP': '225', 'NS': '67'})
+    varRecord(Y, 2782506, rs2075640, A, G, 38.0, ., {'AC': '1', 'AN': '2', 'DB': '', 'DP': '254', 'H2': '', 'NS': '66'})
+    varRecord(Y, 2783755, ., G, A, 51.0, ., {'AC': '1', 'AN': '2', 'DP': '217', 'NS': '67'})
+    varRecord(Y, 2788927, rs56004558, A, G, 38.0, ., {'AC': '1', 'AN': '2', 'DB': '', 'DP': '173', 'NS': '60'})
     """
 
     def __init__(self, vcf_: str) -> None:
@@ -430,25 +450,6 @@ class VCF(File):
         This method check input line whether it contains
         proper columns for vcf format comparing to 'self.header'.
         
-        Examples
-        --------
-        >>> vp = VCF('test.vcf')
-        ...
-        >>> vp.header
-        ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', 'SAMPLE']
-        >>> line = 'Line with improper format'
-        >>> vp.write(line)  ## do not write improper format line
-        >>> 
-        >>> line = '##Line with proper format'
-        >>> vp.write(line)  ## recognize as header line
-        >>> line = 'chr1\t10000\t.\tA\tT\t32\t.\tAC=2;AN=2\tGT:GQ\t1/1:12\n'
-        >>> vp.write(line)  ## write one line containing variant info
-        >>> vp.close()
-        $ cat test.vcf
-        ##Line with proper format
-        chr1\t10000\t.\tA\tT\t32\t.\tAC=2;AN=2\tGT:GQ\t1/1:12\n
-        $
-
         Parameters
         ----------
         line : str
@@ -528,27 +529,19 @@ class VCF(File):
         Yields
         ------
         Generator[str, None, None]
-            Line containing input genotype
-        
-        Example
-        -------
-        >>> proc = VCFProcessor(vcf_path)
-        >>> proc.open()
-        >>> for line in proc.get_genotype(['0/0'])
-        ...     print(line)
-        Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65    GT  0/0
+            Line containing input genotype        
         """
         
         if not self.f_obj:
             ## Open VCF first
             return
         
+        line = self.readline()
         if 'FORMAT' not in self.header:
             ## GT info not in VCF
             return
-
+        
         format_idx = self.header.index('FORMAT')
-        line = self.readline()
         while line != '':
             cols = line.strip('\n').split('\t')
             format = cols[format_idx].split(':')
@@ -585,58 +578,14 @@ class VCF(File):
         
         return line[0] == '#'
 
+def _test():
+    """test by CI script"""
+    
+    import doctest
+    doctest.testmod()
+    
+    return
+
 
 if __name__ == '__main__':
-    # vcf = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
-    # vcf = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
-    # proc = VCF(vcf)
-    # proc.open()
-    
-    # for line in proc.get_genotype('0/0'):
-    #     print(line.strip())
-    
-    # for line in proc.filter_genotype(['.', '0', '0/0']):
-    #     print(line.strip())
-    
-    # for line in proc.get_header_line():
-    #     print(line.strip())
-    
-    ## test 'readline' method
-    # print(proc.readline())
-    # print(proc.readline())
-    # print(proc.readline())
-    
-    # proc.open()
-    # print(proc.readline(skip_header=False))
-    # print(proc.readline(skip_header=False))
-    # print(proc.readline(skip_header=False))
-    # print(proc.f_obj.mode)
-    
-    ## test 'write' method
-    # path = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf.gz'
-    # proc = VCF(vcf)
-    # proc.open(mode='w')
-    # proc.write('##Test vcf file')
-    # proc.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tTEST')
-    # proc.write('chrM\t73\t.\tA\tG\t1551\tPASS\tSNVHPOL=3;MQ=60\tGT:GQ:GQX:DP:DPF:AD:ADF:ADR:SB:FT:PL\t1/1:12:9:5:0:0,5:0,5:0,0:0.0:PASS:111,15,0\n')
-    # proc.close()
-    
-    ## test 'parse_meta_info_lines' method
-    # path = '/Users/hanbeomman/Documents/project/mg-bio/trio.2010_06.ychr.sites.vcf'
-    path = '/Users/hanbeomman/Documents/project/mg-bio/test.vcf'
-    vcf = VCF(path)
-    # meta_info = vcf.parse_meta_info_lines()
-    # # print(meta_info)
-    # for key in meta_info.keys():
-    #     print(f'{key}:{[str(e) for e in meta_info[key]]}')
-    
-    ## test 'reader' method
-    # vcf.open()
-    # for variant in vcf.reader():
-    #     print(variant)
-    
-    ## test 'sanity_check' method
-    print(vcf.sanity_check())
-    vcf.open()
-    for variant in vcf.reader():
-        print(variant)
+    _test()
