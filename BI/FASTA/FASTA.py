@@ -4,9 +4,9 @@ import json
 
 from typing import Dict, TextIO, Tuple, Type, Generator
 
-from File import File
-from FASTA.Seq import Seq
-from FASTA.Constant import *
+from BI.File import File
+from BI.FASTA.Seq import Seq
+from BI.FASTA.Constant import *
 
 __all__ = ('SeqRecord', 'FASTA')
 

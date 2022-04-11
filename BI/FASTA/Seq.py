@@ -1,6 +1,6 @@
 from typing import Dict, Type
 
-from FASTA.Constant import *
+from BI.FASTA.Constant import *
 
 __all__ = ('Seq',)
 
