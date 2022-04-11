@@ -38,7 +38,6 @@ setup(
     description='first version of biotools package',
     author='Beomman Han',
     author_email='qjaaks6378@gmail.com',
-    #packages=['FASTA', 'VCF'],
     packages=['BI',
               'BI.FASTA',
               'BI.VCF'],

@@ -376,13 +376,10 @@ class FASTA(File):
         return
 
 def _test():
-
     import doctest
     doctest.testmod()
-    
     return
 
 
-if __name__ == "__main__":
-
+if __name__ == "__main__":    
     _test()
