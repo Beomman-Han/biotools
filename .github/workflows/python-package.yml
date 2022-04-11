@@ -5,7 +5,7 @@ name: Python package
 
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, dev, feat/CI ]
   pull_request:
     branches: [ master, dev ]
 
@@ -26,8 +26,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install doctest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Install package
       run: |
