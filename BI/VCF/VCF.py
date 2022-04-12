@@ -1,10 +1,12 @@
 import os
 
-from typing import Dict, Generator, List, Literal
+from typing import Dict, Generator, List, Literal, Type
 
 from BI.VCF.varRecord import varRecord
 from BI.File import File
 import gzip
+import pandas as pd
+
 
 __all__ = ('metaFILTER', 'metaFORMAT', 'metaINFO', 'VCF')
 
@@ -577,6 +579,33 @@ class VCF(File):
         """
         
         return line[0] == '#'
+
+    def load_to_dataframe(self) -> Type['pd.DataFrame']:
+        """Load variant information to pandas dataframe
+        * consider memory usage for large vcf file
+        
+        Test
+        ----
+        >>> from BI import VCF
+        >>> vcf = VCF.VCF('./data/small.vcf')
+        >>> df = vcf.load_to_dataframe()
+        """
+        
+        list_to_df = []
+        
+        vcf = VCF(self.vcf)
+        vcf.open()
+        line = vcf.readline()
+        cols = line.strip().split('\t')
+        list_to_df.append(cols)        
+        while line != '':
+            cols = line.strip().split('\t')
+            list_to_df.append(cols)
+            line = vcf.readline()
+        df = pd.DataFrame(data=list_to_df, columns=vcf.header)
+        
+        return df
+
 
 def _test():
     """test by CI script"""
