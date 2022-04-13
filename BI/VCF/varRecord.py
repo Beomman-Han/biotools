@@ -34,6 +34,30 @@ class varRecord:
     
     In the case of the absence of 'FORMAT' field (and following 'SAMPLE' fields),
     'format_headers' and 'sample_info' attributes are saved as None.
+    
+    Example
+    -------    
+    >>> sample_list = ["NA00001", "NA00002"]
+    >>> test_str = "20\t14370\trs6054257\tG\tA\t29\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51"
+    >>> test_info = test_str.split()
+    >>> test_var = varRecord(*test_info[:8], format_header=test_info[8], format_list=test_info[9:], sample_name_list=sample_list)
+    >>> from pprint import pprint
+    >>> print(test_var.chrom)
+    20
+    >>> print(test_var.pos)
+    14370
+    >>> print(test_var.ID)
+    rs6054257
+    >>> print(test_var.ref)
+    G
+    >>> print(test_var.alt)
+    A
+    >>> print(test_var.qual)
+    29.0
+    >>> print(test_var.filter)
+    ['PASS']
+    >>> print(test_var.get_column_num())
+    10
     """
     
     __slots__ = ('_chrom', '_pos', '_ID',
@@ -60,27 +84,27 @@ class varRecord:
         Parameters
         ----------
         chrom : str
-            _Chromosome_
+            Chromosome
         pos : int
-            _Reference position (1-base coordinate)_
+            Reference position (1-base coordinate)
         ID : str
-            _Variant identifier_
+            Variant identifier
         ref : str
-            _Reference allele_
+            Reference allele
         alt : str
-            _Alternative allele_
+            Alternative allele
         qual : int
-            _Variant quality_
+            Variant quality
         var_filter : str
-            _Filter status_
+            Filter status
         info : str
-            _Additional info combined across all samples_
+            Additional info combined across all samples
         format_header : str, optional
-            _Header for additional info of each sample, by default False
+            Header for additional info of each sample, by default False
         format_list : list, optional
-            _Additional info of each sample_, by default False
+            Additional info of each sample_, by default False
         sample_name_list : list, optional
-            _Sample name list_, by default False
+            Sample name list_, by default False
         """
         
         self.chrom = chrom
@@ -241,32 +265,14 @@ class varRecord:
         cols = [ getattr(self, c) for c in self.__slots__ if getattr(self, c) ]
         return len(cols)
 
-        
+
+def _test():
+    """Test function of this code"""
+    
+    import doctest
+    doctest.testmod()
+    
+    return
+
 if __name__ == "__main__":
-    sample_list = ["NA00001", "NA00002"]
-    test_str = "20\t14370\trs6054257\tG\tA\t29\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51"
-    
-    test_info = test_str.split('\t')
-    
-    test_var = varRecord(*test_info[:8],
-                        format_header=test_info[8],
-                        format_list=test_info[9:],
-                        sample_name_list=sample_list)
-    
-    print(f'Size of \'varRecord\' instance : {sys.getsizeof(test_var)} bytes')
-    # print(sys.getsizeof(test_var.__dict__))
-    # print(sys.getsizeof(test_var.__slots__))
-
-    from pprint import pprint    
-    print(test_var.chrom)
-    pprint(test_var.info)
-    pprint(test_var.sample_info)
-    
-    ## test for 'get_column_num' method
-    # test_var = varRecord(*test_info[:8])
-    test_var = varRecord(*test_info[:8],
-                    format_header=test_info[8],
-                    format_list=test_info[9:],
-                    sample_name_list=sample_list)
-
-    print(test_var.get_column_num())
+    _test()
