@@ -115,21 +115,68 @@ class metaINFO:
     
 
 class VCF(File):
-    """Class supports various functions for processing VCF file
-    It provides general VCF process methods.
-
-    Attributes
-    ----------
-    To be written...
+    """This supports various functions for handling VCF file.
+    VCF file contains variant information from sample (or samples),
+    each line represent each genomic variant.
+    VCF consist of meta information lines, header line, and data lines.
+    Meta information lines start with '##' and header line start with '#'.
+    (Detail explanation of meta lines are below)
+    Data lines which follow header line do not start with '#', and 
+    each data line actually represent each variant.
+    Header line and data lines are tab seperated and each column
+    is called as field. The name of columns(fields) are determined at
+    header line. For example,
     
-    Methods
-    -------
-    To be written...
+    #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO    FORMAT  SAMPLE1...
+    
+    The first 8 fields are mandatory.
+    'CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO'
+    
+    And most of VCFs produced by normal analysis pipeline have fields
+    'FORMAT', 'SAMLE1', 'SAMLE2', ...
+    
+    Of 9 fields, 'FILTER', 'INFO', and 'FORMAT' fields contain
+    more complicated information. For example,
+    
+    #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+    Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65
+    Y	2734240	.	G	A	31	.	AC=1;AN=2;DP=196;NS=63
+    Y	2743242	.	C	T	25	.	AC=1;AN=2;DP=275;NS=66
+    Y	2746727	.	A	G	34	.	AC=2;AN=2;DP=179;NS=64
+    Y	2777970	.	T	A	67	.	AC=1;AN=2;DP=225;NS=67
+
+    'INFO' field contain a few of '[key]=[value]' pairs where
+    each key indicates statistics of a variant. Details for each
+    key are represented at the top of VCF, lines starting with '##'.
+    These lines contain meta information for data line of VCF, and
+    are written at the top of file. For example,
+    
+    ##fileformat=VCFv4.0
+    ##fileDate=20100610 
+    ##source=glfTools v3
+    ##reference=1000GenomesPilot-NCBI36 
+    ##phasing=NA
+    ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Mapped Reads">
+    ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+    ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
+    ##INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
+    ##FILTER=<ID=NUYR,Description="Variant in non-unique Y region">
+    ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+    ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype	Quality">
+    ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Depth">
+    ##INFO=<ID=AC,Number=.,Type=Integer,Description="Allele count in genotypes">
+    ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+    
+    The format of meta lines should be [key]=[value], and
+    [value] could also have [key]=[value] pairs in '<>'.
+    
+    Meta lines are important as data lines, BI.VCF.VCF class supports
+    method which parses meta lines and returns dictionary.
     
     Example
     -------
     >>> from BI import VCF
-    >>> vcf = VCF.VCF('./data/trio.2010_06.ychr.sites.vcf')
+    >>> vcf = VCF.VCF('./data/small.vcf')
     >>> vcf.sanity_check()
     AC of INFO has unknown range
     True
@@ -145,6 +192,7 @@ class VCF(File):
     varRecord(Y, 2782506, rs2075640, A, G, 38.0, ., {'AC': '1', 'AN': '2', 'DB': '', 'DP': '254', 'H2': '', 'NS': '66'})
     varRecord(Y, 2783755, ., G, A, 51.0, ., {'AC': '1', 'AN': '2', 'DP': '217', 'NS': '67'})
     varRecord(Y, 2788927, rs56004558, A, G, 38.0, ., {'AC': '1', 'AN': '2', 'DB': '', 'DP': '173', 'NS': '60'})
+    >>> df = vcf.load_to_dataframe()
     """
 
     def __init__(self, vcf_: str) -> None:
@@ -580,6 +628,26 @@ class VCF(File):
         
         return line[0] == '#'
 
+    def _set_header(self) -> None:
+        """Set header of VCF file"""
+        
+        vcf = VCF(self.vcf)
+        vcf.open()
+        line = vcf.readline(skip_header=False)
+        while line != '':
+            if line[:2] == '##':
+                line = vcf.readline(skip_header=False)
+                continue
+            if line[0] == '#':
+                break
+            line = vcf.readline(skip_header=False)
+        vcf.close()
+        
+        header = line[1:].strip().split('\t')
+        self.header = header
+        
+        return
+    
     def load_to_dataframe(self) -> Type['pd.DataFrame']:
         """Load variant information to pandas dataframe
         * consider memory usage for large vcf file
@@ -589,20 +657,75 @@ class VCF(File):
         >>> from BI import VCF
         >>> vcf = VCF.VCF('./data/small.vcf')
         >>> df = vcf.load_to_dataframe()
+        >>> df
         """
-        
-        list_to_df = []
         
         vcf = VCF(self.vcf)
         vcf.open()
-        line = vcf.readline()
-        cols = line.strip().split('\t')
-        list_to_df.append(cols)        
-        while line != '':
-            cols = line.strip().split('\t')
-            list_to_df.append(cols)
-            line = vcf.readline()
-        df = pd.DataFrame(data=list_to_df, columns=vcf.header)
+        
+        ## load meta information
+        meta_info = vcf.parse_meta_info_lines()
+        
+        vcf._set_header()
+        df_columns = []
+        for col in vcf.header[:8]:
+            if col == 'INFO':
+                for info in meta_info[col]:
+                    ## INFO -> INFO-NS, INFO-DP,...
+                    df_columns.append(f'{col}-{info.id}')        
+            else:
+                df_columns.append(col)
+
+        ## optional fields
+        if len(vcf.header) > 8:
+            format_columns = []
+            for format in meta_info['FORMAT']:
+                format_columns.append(f'{format.id}')
+                
+            for sample in vcf.header[9:]:
+                for format in format_columns:
+                    df_columns.append(f'{sample}-{format}')
+
+        list_to_df = []
+        for var in vcf.reader():
+            ## mandatory fields
+            #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+            chrom = var.chrom
+            pos   = var.pos
+            id    = var.ID
+            ref   = var.ref
+            alt   = var.alt
+            qual  = var.qual
+            filt  = ';'.join(var.filter)
+            
+            ## parsing 'INFO' values
+            info_vals = []
+            info_cols = [ col for col in df_columns if col.startswith('INFO-') ]
+            for col in info_cols:
+                try:
+                    info_val = var.info[f'{"-".join(col.split("-")[1:])}']
+                except KeyError:
+                    info_val = 'X'
+                info_vals.append(info_val)
+                
+            variant = [chrom, pos, id, ref, alt, qual, filt, *info_vals]
+            
+            ## optional fields
+            #FORMAT  SAMPLE1 ...
+            if len(vcf.header) > 8:
+                format_cols = [ col for col in df_columns if col.startswith('FORMAT-') ]
+                for sample in vcf.header[9:]:
+                    sample_cols = []
+                    for col in format_cols:
+                        try:
+                            sample_val = var.sample_info[sample][f'{"-".join(col.split("-")[1:])}']
+                        except KeyError:
+                            sample_val = 'X'
+                        sample_cols.append(sample_val)
+                
+                    variant += sample_cols
+            list_to_df.append(variant)
+        df = pd.DataFrame(data=list_to_df, columns=df_columns)
         
         return df
 

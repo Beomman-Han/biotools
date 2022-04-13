@@ -32,6 +32,19 @@ class varRecord:
     content of 'INFO' field as dictionary, and content of 'FORMAT' field
     as dictionary. Other fileds are saved as string or integer.
     
+    FILTER field : '.' -> ['.']
+    INFO field   : 'AC=2;AN=2;DB;DP=182;H2;NS=65' -> {'AC': '2', 'AN': '2', ... , 'DB': '', 'NS': '65'}
+    
+    (optional)
+    FORMAT field  : 'GT:GQ:DP:HQ' -> {1: 'GT', 2: 'GQ', 3: 'DP', 4: 'HQ'}
+    
+    SAMPLE fields :
+    # ... FORMAT        NA00001         NA00002
+    ..    GT:GQ:DP:HQ   0|0:48:1:51,51  1|0:48:8:51,51
+    -> {0: 'GT', 1: 'GQ', 2: 'DP', 3: 'HQ'}
+    -> {'NA00001' : {'DP': 1, 'GQ': 48, 'GT': '0|0', 'HQ': '51,51'},
+        'NA00002' : {'DP': 8, 'GQ': 48, 'GT': '1|0', 'HQ': '51,51'}}
+    
     In the case of the absence of 'FORMAT' field (and following 'SAMPLE' fields),
     'format_headers' and 'sample_info' attributes are saved as None.
     
