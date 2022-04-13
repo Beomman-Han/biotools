@@ -5,7 +5,36 @@ __all__ = ('varRecord',)
 
 # VCFv4.3
 class varRecord:
-    """Store variant information from VCF format file"""
+    """This class is for storing variant information from VCF.    
+    It follows VCFv4.2 specification. Data lines of VCF are 
+    tab seperated, and each column represents each information
+    related to variant.  For example,
+    
+    #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO    FORMAT  SAMPLE1...
+    
+    The first 8 fields are mandatory.
+    'CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO'
+    
+    And most of VCFs produced by normal analysis pipeline have fields
+    'FORMAT', 'SAMLE1', 'SAMLE2', ...
+    
+    Of 9 fields, 'FILTER', 'INFO', and 'FORMAT' fields contain
+    more complicated information. For example,
+    
+    #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+    Y	2728456	rs2058276	T	C	32	.	AC=2;AN=2;DB;DP=182;H2;NS=65
+    Y	2734240	.	G	A	31	.	AC=1;AN=2;DP=196;NS=63
+    Y	2743242	.	C	T	25	.	AC=1;AN=2;DP=275;NS=66
+    Y	2746727	.	A	G	34	.	AC=2;AN=2;DP=179;NS=64
+    Y	2777970	.	T	A	67	.	AC=1;AN=2;DP=225;NS=67
+
+    varRecord instance saves content of 'FILTER' field as list,
+    content of 'INFO' field as dictionary, and content of 'FORMAT' field
+    as dictionary. Other fileds are saved as string or integer.
+    
+    In the case of the absence of 'FORMAT' field (and following 'SAMPLE' fields),
+    'format_headers' and 'sample_info' attributes are saved as None.
+    """
     
     __slots__ = ('_chrom', '_pos', '_ID',
                  '_ref', '_alt', '_qual',
@@ -138,7 +167,11 @@ class varRecord:
     
     @filter.setter
     def filter(self, _filter : str) -> None:
-        self._filter = _filter
+        self._filter = []
+        if _filter.endswith(';'):
+            _filter = _filter[:-1]
+        self._filter = _filter.split(';')
+        
         return
 
     @property
