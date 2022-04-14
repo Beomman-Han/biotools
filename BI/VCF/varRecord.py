@@ -30,10 +30,18 @@ class varRecord:
 
     varRecord instance saves content of 'FILTER' field as list,
     content of 'INFO' field as dictionary, and content of 'FORMAT' field
-    as dictionary. Other fileds are saved as string or integer.
+    as dictionary. Other fileds are saved as string or integer or float.
     
     FILTER field : '.' -> ['.']
     INFO field   : 'AC=2;AN=2;DB;DP=182;H2;NS=65' -> {'AC': '2', 'AN': '2', ... , 'DB': '', 'NS': '65'}
+    
+    Each tag in INFO field has the form of 'key=value'. The explanation
+    for key is at meta information lines of VCF, located at the top of VCF.
+    The type of value of tag of INFO field could be 'Integer', 'Float',
+    'Flag', 'Character', 'String'.
+
+    In the case of the absence of 'FORMAT' field (and following 'SAMPLE' fields),
+    'format_headers' and 'sample_info' attributes are saved as None.
     
     (optional)
     FORMAT field  : 'GT:GQ:DP:HQ' -> {1: 'GT', 2: 'GQ', 3: 'DP', 4: 'HQ'}
@@ -45,8 +53,11 @@ class varRecord:
     -> {'NA00001' : {'DP': 1, 'GQ': 48, 'GT': '0|0', 'HQ': '51,51'},
         'NA00002' : {'DP': 8, 'GQ': 48, 'GT': '1|0', 'HQ': '51,51'}}
     
-    In the case of the absence of 'FORMAT' field (and following 'SAMPLE' fields),
-    'format_headers' and 'sample_info' attributes are saved as None.
+    Each tag in FORMAT field is concatenated by ':'. Following SAMPLE fields
+    also have the form of ':', values for tags in FORMAT field are concatenated
+    by ':'. The explanation for tags of FORMAT field is at meta information lines.
+    The type of value of tag of FORMAT filed could be 'Integer', 'Float',
+    'Character', 'String' (same as INFO field except 'Flag').
     
     Example
     -------    
@@ -54,7 +65,6 @@ class varRecord:
     >>> test_str = "20\t14370\trs6054257\tG\tA\t29\tPASS\tNS=3;DP=14;AF=0.5;DB;H2\tGT:GQ:DP:HQ\t0|0:48:1:51,51\t1|0:48:8:51,51"
     >>> test_info = test_str.split()
     >>> test_var = varRecord(*test_info[:8], format_header=test_info[8], format_list=test_info[9:], sample_name_list=sample_list)
-    >>> from pprint import pprint
     >>> print(test_var.chrom)
     20
     >>> print(test_var.pos)
