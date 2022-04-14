@@ -182,6 +182,20 @@ class VCF(File):
     True
     >>> vcf.open()
     >>> meta_info = vcf.parse_meta_info_lines()
+    >>> for key in sorted(list(meta_info.keys())):
+    ...     if key in {'FILTER', 'INFO', 'FORMAT'}:
+    ...         for id in sorted(list(meta_info[key].keys())):
+    ...             print(key, id, meta_info[key][id].desc)
+    FILTER NUYR "Variant in non-unique Y region"
+    FORMAT DP "Depth"
+    FORMAT GQ "Genotype	Quality"
+    FORMAT GT "Genotype"
+    INFO AC "Allele count in genotypes"
+    INFO AN "Total number of alleles in called genotypes"
+    INFO DB "dbSNP membership, build 129"
+    INFO DP "Total Depth"
+    INFO H2 "HapMap2 membership"
+    INFO NS "Number of Samples With Mapped Reads"
     >>> for line in vcf.reader():
     ...     print(line)
     varRecord(Y, 2728456, rs2058276, T, C, 32.0, ., {'AC': '2', 'AN': '2', 'DB': '', 'DP': '182', 'H2': '', 'NS': '65'})
@@ -277,10 +291,10 @@ class VCF(File):
         if not meta_info:
             print(f'[Warning] VCF does not have meta info lines')
             return False
-        info_fields = set([f.id for f in meta_info['INFO']])
+        info_fields = set([id for id in meta_info['INFO'].keys()])
         
         ## check meta information lines
-        for field in meta_info['INFO']:
+        for field in meta_info['INFO'].values():
             ## check Number == '.' (unknown value)
             if field.number == '.':
                 print(f'{field.id} of INFO has unknown range')
@@ -289,7 +303,7 @@ class VCF(File):
                 print(f'{field.id} of INFO is unknown type')
                 print(f'{field.type}')
         if 'FORMAT' in meta_info.keys():
-            for field in meta_info['FORMAT']:
+            for field in meta_info['FORMAT'].values():
                 ## check Number == '.'
                 if field.number == '.':
                     print(f'{field.id} of FORMAT has unknown range')
@@ -327,14 +341,33 @@ class VCF(File):
                 
         return True
     
-    def parse_meta_info_lines(self) -> Dict[str, List]:
+    # def parse_meta_info_lines(self) -> Dict[str, List]:
+    def parse_meta_info_lines(self) -> Dict[str, dict] or Dict[str, list]:
         """Parse meta information lines starting with '##' to save meta info of VCF file.
         Meta information lines must be key=value pairs. Please refer to official VCF format
         document.
         
+        Meta information lines example,
+        
+        ##fileformat=VCFv4.0
+        ##fileDate=20100610 
+        ##source=glfTools v3
+        ##reference=1000GenomesPilot-NCBI36 
+        ##phasing=NA
+        ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of Samples With Mapped Reads">
+        ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+        ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP membership, build 129">
+        ##INFO=<ID=H2,Number=0,Type=Flag,Description="HapMap2 membership">
+        ##FILTER=<ID=NUYR,Description="Variant in non-unique Y region">
+        ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+        ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype	Quality">
+        ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Depth">
+        ##INFO=<ID=AC,Number=.,Type=Integer,Description="Allele count in genotypes">
+        ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+        
         Returns
         -------
-        Dict[str, List]
+        Dict[str, dict]
             Dictionary containing meta information
         """
         
@@ -352,7 +385,11 @@ class VCF(File):
             field = line[2:].strip().split('=')[0]
             if field not in meta_info.keys():
                 # meta_info[field] = set()
-                meta_info[field] = []
+                # meta_info[field] = []
+                if field in {'FILTER', 'INFO', 'FORMAT'}:
+                    meta_info[field] = dict()
+                else:
+                    meta_info[field] = []
             
             ## '##FILTER=<ID=..,Description="..">' -> '<ID=..,Description="..">'
             contents: str = '='.join(line[2:].strip().split('=')[1:])
@@ -380,13 +417,18 @@ class VCF(File):
                 ## '##FILTER=<ID=..,Description=..>'
                 ## -> {'FILTER': [metaFILTER, ...]}
                 if field == 'FILTER':
-                    meta_info[field].append(metaFILTER(temp['ID'], temp['Description']))
+                    # meta_info[field].append(metaFILTER(temp['ID'], temp['Description']))
+                    meta_info[field][temp['ID']] = metaFILTER(temp['ID'], temp['Description'])
                 elif field == 'FORMAT':
-                    meta_info[field].append(metaFORMAT(temp['ID'], temp['Number'],\
-                                            temp['Type'], temp['Description']))
+                    # meta_info[field].append(metaFORMAT(temp['ID'], temp['Number'],\
+                    #                         temp['Type'], temp['Description']))
+                    meta_info[field][temp['ID']] = metaFORMAT(temp['ID'], temp['Number'],\
+                                            temp['Type'], temp['Description'])
                 elif field == 'INFO':
-                    meta_info[field].append(metaINFO(temp['ID'], temp['Number'],\
-                                            temp['Type'], temp['Description']))
+                    # meta_info[field].append(metaINFO(temp['ID'], temp['Number'],\
+                    #                         temp['Type'], temp['Description']))
+                    meta_info[field][temp['ID']] = metaINFO(temp['ID'], temp['Number'],\
+                                            temp['Type'], temp['Description'])
                 else:
                     ## '##GATKCommandLine=<ID=..,CommandLine=..>'
                     ## -> {'GATKCommandLine': [{'ID':'..', 'CommandLine':'..'}]}
@@ -670,17 +712,17 @@ class VCF(File):
         df_columns = []
         for col in vcf.header[:8]:
             if col == 'INFO':
-                for info in meta_info[col]:
+                for info_id in sorted(list(meta_info[col].keys())):
                     ## INFO -> INFO-NS, INFO-DP,...
-                    df_columns.append(f'{col}-{info.id}')        
+                    df_columns.append(f'{col}-{info_id}')
             else:
                 df_columns.append(col)
 
         ## optional fields
         if len(vcf.header) > 8:
             format_columns = []
-            for format in meta_info['FORMAT']:
-                format_columns.append(f'{format.id}')
+            for format_id in sorted(list(meta_info['FORMAT'].keys())):
+                format_columns.append(f'{format_id}')
                 
             for sample in vcf.header[9:]:
                 for format in format_columns:
@@ -741,3 +783,12 @@ def _test():
 
 if __name__ == '__main__':
     _test()
+    
+    # vcf = VCF('./data/small.vcf')
+    # vcf.sanity_check()
+    # vcf.open()
+    # meta_info = vcf.parse_meta_info_lines()
+    # for key in sorted(list(meta_info.keys())):
+    #     if key in {'FILTER', 'INFO', 'FORMAT'}:
+    #         for id in sorted(list(meta_info[key].keys())):
+    #             print(key, id, meta_info[key][id].desc)
