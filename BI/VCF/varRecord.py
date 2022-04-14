@@ -69,6 +69,21 @@ class varRecord:
     29.0
     >>> print(test_var.filter)
     ['PASS']
+    >>> print([ (k, test_var.info[k]) for k in sorted(list(test_var.info.keys())) ])
+    [('AF', '0.5'), ('DB', 'O'), ('DP', '14'), ('H2', 'O'), ('NS', '3')]
+    >>> print([ (k, test_var.format_headers[k]) for k in sorted(list(test_var.format_headers.keys())) ])
+    [(0, 'GT'), (1, 'GQ'), (2, 'DP'), (3, 'HQ')]
+    >>> for sample in sorted(list(test_var.sample_info.keys())):
+    ...     for key in sorted(list(test_var.sample_info[sample].keys())):
+    ...         print(sample, key, test_var.sample_info[sample][key])
+    NA00001 DP 1
+    NA00001 GQ 48
+    NA00001 GT 0|0
+    NA00001 HQ 51,51
+    NA00002 DP 8
+    NA00002 GQ 48
+    NA00002 GT 1|0
+    NA00002 HQ 51,51
     >>> print(test_var.get_column_num())
     10
     """
@@ -224,8 +239,11 @@ class varRecord:
             try:
                 key, value = info_data.split('=')
             except ValueError:
+                ## case that info_data is 'FLAG' type
                 key = info_data
-                value = ''
+                ## if it has info_data which of type is 'FLAG',
+                ## its value should be 'O' (otherwise 'X')
+                value = 'O'
             self._info[key.strip()] = value.strip()
         return
 
