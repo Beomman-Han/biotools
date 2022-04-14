@@ -1,7 +1,10 @@
 import sys
-from typing import List, Dict
+from typing import List, Dict, TypeVar
 
 __all__ = ('varRecord',)
+
+INFO = TypeVar('INFO', int, float, str)
+FORMAT = TypeVar('FORMAT', int, float, str)
 
 # VCFv4.3
 class varRecord:
@@ -80,7 +83,7 @@ class varRecord:
     >>> print(test_var.filter)
     ['PASS']
     >>> print([ (k, test_var.info[k]) for k in sorted(list(test_var.info.keys())) ])
-    [('AF', '0.5'), ('DB', 'O'), ('DP', '14'), ('H2', 'O'), ('NS', '3')]
+    [('AF', 0.5), ('DB', True), ('DP', 14), ('H2', True), ('NS', 3)]
     >>> print([ (k, test_var.format_headers[k]) for k in sorted(list(test_var.format_headers.keys())) ])
     [(0, 'GT'), (1, 'GQ'), (2, 'DP'), (3, 'HQ')]
     >>> for sample in sorted(list(test_var.sample_info.keys())):
@@ -112,6 +115,7 @@ class varRecord:
         qual: str,
         var_filter: str,
         info: str,
+        meta_info: Dict[str, dict],
         format_header: str = False,
         format_list: List[str] = False,
         sample_name_list: List[str] = False,
@@ -137,6 +141,8 @@ class varRecord:
             Filter status
         info : str
             Additional info combined across all samples
+        meta_info : Dict[str, dict]
+            Dictionary containing meta information lines
         format_header : str, optional
             Header for additional info of each sample, by default False
         format_list : list, optional
@@ -152,7 +158,7 @@ class varRecord:
         self.alt = alt
         self.qual = qual
         self.filter = var_filter
-        self.info : Dict[str, str] = info
+        self._info : Dict[str, INFO] = self._parse_info(info, meta_info)
         
         ## optional attributes
         if format_header and format_list and sample_name_list:
@@ -240,23 +246,6 @@ class varRecord:
     def info(self) -> Dict:
         return self._info
     
-    @info.setter
-    def info(self, _info : str) -> None:
-        self._info = {}
-        if _info.endswith(';'):
-            _info = _info[:-1]
-        for info_data in _info.split(';'):
-            try:
-                key, value = info_data.split('=')
-            except ValueError:
-                ## case that info_data is 'FLAG' type
-                key = info_data
-                ## if it has info_data which of type is 'FLAG',
-                ## its value should be 'O' (otherwise 'X')
-                value = 'O'
-            self._info[key.strip()] = value.strip()
-        return
-
     @property
     def format_headers(self) -> Dict[str, str]:
         return self._format_headers
@@ -271,6 +260,73 @@ class varRecord:
         else:
             self._format_headers = dict()
         return
+    
+    def _transform_type(self,
+        value : str,
+        type : str
+        ) -> INFO or FORMAT:
+        
+        """Transform input value from string type
+        to proper python data type according to the meta
+        information.
+        
+        -----------------------------
+        Types     | Python data type
+        -----------------------------
+        Integer   | int
+        Float     | float
+        Flag      | bool
+        Character | str
+        String    | str
+        -----------------------------
+        """
+        
+        try:
+            if type == 'Integer':
+                return int(value)
+            elif type == 'Float':
+                return float(value)
+            elif type == 'Flag':
+                return bool(value)
+        except ValueError:
+            return value        
+
+    def _parse_info(self,
+        _info : str,
+        meta_info : Dict[str, dict]
+        ) -> Dict[str, INFO]:
+        
+        """Parse 'key=value' pairs seperated by ';' of INFO field
+        to dictionary. Values are stored by proper data type, according to
+        the type of the key(tag).
+        
+        -----------------------------
+        Types     | Python data type
+        -----------------------------
+        Integer   | int
+        Float     | float
+        Flag      | bool
+        Character | str
+        String    | str
+        -----------------------------
+        """
+        
+        self_info : Dict[str, INFO] = {}
+        if _info.endswith(';'):
+            _info = _info[:-1]
+        for info_data in _info.split(';'):
+            try:
+                key, value = info_data.split('=')
+            except ValueError:
+                ## case that info_data is 'FLAG' type
+                key = info_data
+                ## if it has info_data which of type is 'FLAG',
+                ## its value should be 'O' (otherwise '')
+                value = 'O'
+            
+            self_info[key.strip()] = self._transform_type(value.strip(), meta_info['INFO'][key.strip()].type)
+        
+        return self_info
 
     def _parse_sample_format(self,
         sample_formats : List[str] = False,
