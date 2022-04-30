@@ -40,6 +40,7 @@ setup(
     author_email='qjaaks6378@gmail.com',
     packages=['BI',
               'BI.FASTA',
-              'BI.VCF'],
+              'BI.VCF',
+              'BI.utils'],
     #install_requires=['gzip', 're', 'json']
 )
