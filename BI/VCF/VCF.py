@@ -7,6 +7,7 @@ from BI.File import File
 import gzip
 import pandas as pd
 
+from BI.utils._bunch import Bunch
 
 __all__ = ('metaFILTER', 'metaFORMAT', 'metaINFO', 'VCF')
 
@@ -689,6 +690,27 @@ class VCF(File):
         self.header = header
         
         return
+    
+    def load_vcf(self) -> Bunch:
+        """Load and return VCF file to instance of 'dataset' like sklearn's datasets
+        
+        Returns
+        -------
+        Bunch
+            Dictionary-like object, with following attributes.
+            
+            data : pandas.DataFrame
+                pandas.DataFrame of VCF data
+            DESCR : str
+                The full description of VCF data
+            filename : str
+                The path of the location of data
+        """
+        
+        data = self.load_to_dataframe()
+        meta_info = self.parse_meta_info_lines()
+        
+        return Bunch(data=data, DESCR=meta_info)
     
     def load_to_dataframe(self) -> Type['pd.DataFrame']:
         """Load variant information to pandas dataframe
